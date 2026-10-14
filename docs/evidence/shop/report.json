@@ -1,0 +1,14 @@
+{
+  "time": "2026-10-14T12:15:45.311Z",
+  "mode": "server",
+  "postgresql": true,
+  "contexts": 3,
+  "httpLan": true,
+  "checks": [
+    "first-run protected shop setup through HTTP LAN UI",
+    "cash underpayment; lost committed response → reload → expired session → same-key recovery; two-tab retry stays one bill/one stock deduction",
+    "independent cashier/bar sessions follow queued/preparing/ready/completed",
+    "shop settings, immutable receipt header/reprint and disabled user session enforcement",
+    "owner reconciles stale browser intent after restore; audit persists without another sale"
+  ]
+}
