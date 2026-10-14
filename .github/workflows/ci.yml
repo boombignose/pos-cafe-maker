@@ -50,6 +50,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run dev -- --port 5176 > /tmp/pos-demo.log 2>&1 &
       - run: node scripts/browser-smoke.mjs
+      - run: node scripts/cashier-layout-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
