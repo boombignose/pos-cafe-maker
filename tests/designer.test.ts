@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import modeling from '@jscad/modeling';
 import { unzipSync } from 'fflate';
-import { defaultDesign, parseDesign, parseBoardManifest, generateModel, exportPartStl, exportDesignZip } from '../src/designer/model.js';
+import { BOARD_CATALOG, defaultDesign, parseDesign, parseBoardManifest, generateModel, exportPartStl, exportDesignZip } from '../src/designer/model.js';
 
 const { measurements, booleans, primitives } = modeling;
 const design = () => defaultDesign();
@@ -66,7 +66,7 @@ test('exports binary STL for exactly four print parts with bed limits and restor
   const d = design();
   const m = generateModel(d);
   const files = unzipSync(exportDesignZip(d));
-  assert.deepEqual(Object.keys(files).sort(), ['base.stl', 'body.stl', 'design.json', 'frame.stl', 'lid.stl']);
+  assert.deepEqual(Object.keys(files).sort(), ['BUILD-NOTES.txt', 'base.stl', 'body.stl', 'design.json', 'frame.stl', 'lid.stl']);
   assert.deepEqual(parseDesign(new TextDecoder().decode(files['design.json'])), d);
   for (const p of m.parts) {
     const bytes = exportPartStl(p);
@@ -111,10 +111,11 @@ test('actual checked-in KiCad manifest imports with mm metadata and yields four 
   assert.equal(generateModel(d).mountingPosts.length, 4);
 });
 
-test('accessory fan connector net connects to the fan power pins in the reference wiring', () => {
+test('fan wiring requires an explicitly supplied connector before connecting matching nets', () => {
   const d = design();
   const fan = d.modules.find(m => m.kind === 'fan')!;
-  assert.ok(fan.connectors.some(c => c.pins.some(p => p.net === '/ACCESSORY_5V')));
+  assert.ok(!generateModel(d).wires.some(w => w.net === '/ACCESSORY_5V'));
+  fan.connectors = [{ id: 'test-power', name: 'Test fixture power', x: 20, y: 20, z: 5, type: 'test-only', pins: [{ name: '+', net: '/ACCESSORY_5V' }, { name: '-', net: '/GND' }] }];
   assert.ok(generateModel(d).wires.some(w => w.net === '/ACCESSORY_5V'));
 });
 
@@ -161,9 +162,13 @@ test('canonical assembled transform keeps case and electronics outside base soli
   assert.ok(generateModel(moved).issues.some(i => i.kind === 'collision' && i.message.includes('body')));
 });
 
-test('reference SBC supply stays electrically independent of accessory and generic MCU nets', () => {
-  const sbc = design().modules.find(m => m.id === 'sbc')!;
-  assert.deepEqual(sbc.connectors[0].pins.map(p => p.net), ['SBC_5V', 'SBC_GND', 'SBC_TX']);
+test('unverified device templates do not invent pinouts; accessory keeps its actual PCB revision', () => {
+  for (const item of BOARD_CATALOG.filter(item => item.id !== 'accessory')) assert.deepEqual(item.board.connectors, []);
+  const accessory = design().modules.find(m => m.id === 'accessory')!;
+  assert.ok(accessory.sourceHash);
+  assert.equal(accessory.sourceFile, 'accessory.kicad_pcb');
+  assert.deepEqual(accessory.connectors.map(c => c.id), ['J1', 'J2']);
+  assert.ok(new TextDecoder().decode(unzipSync(exportDesignZip(design()))['BUILD-NOTES.txt']).includes('docs/BLUEPRINT.md'));
 });
 
 test('tilted support cheeks stay outside the active touchscreen and 20 mm front access corridor', () => {
