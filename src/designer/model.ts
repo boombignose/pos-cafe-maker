@@ -58,13 +58,13 @@ const cornerHoles = (width: number, height: number, inset = 3.5) => [
   { x: inset, y: height - inset, diameter: 2.8 }, { x: width - inset, y: height - inset, diameter: 2.8 },
 ];
 export const BOARD_CATALOG: { id: string; description: string; board: Board }[] = [
-  { id: 'sbc', description: 'SBC 85 × 56 mm • ตรวจรูตามรุ่นจริง', board: { name: 'SBC / Raspberry Pi แบบอ้างอิง', width: 85, height: 56, thickness: 1.6, holes: [{ x: 3.5, y: 3.5, diameter: 2.8 }, { x: 61.5, y: 3.5, diameter: 2.8 }, { x: 3.5, y: 52.5, diameter: 2.8 }, { x: 61.5, y: 52.5, diameter: 2.8 }], components: [{ reference: 'USB', name: 'USB stack', x: 76.5, y: 25, width: 17, height: 20, depth: 16 }, { reference: 'CPU', name: 'CPU + heatsink envelope', x: 42, y: 27, width: 24, height: 24, depth: 12 }], connectors: [{ id: 'gpio', name: '5V / GND / UART', x: 15, y: 51, z: 3, type: 'GPIO', pins: [{ name: '2', net: 'SBC_5V', voltage: 5 }, { name: '6', net: 'SBC_GND', voltage: 0 }, { name: '8', net: 'SBC_TX' }] }] } },
-  { id: 'pico', description: 'Microcontroller 51 × 21 mm', board: { name: 'Pico / MCU แบบอ้างอิง', width: 51, height: 21, thickness: 1.6, holes: cornerHoles(51, 21, 2.5), components: [{ reference: 'MCU', name: 'Microcontroller', x: 26, y: 11, width: 12, height: 12, depth: 3 }], connectors: [{ id: 'uart', name: 'UART', x: 8, y: 19, z: 3, type: 'GPIO', pins: [{ name: 'VCC', net: 'MCU_VSYS', voltage: 5 }, { name: 'GND', net: 'MCU_GND' }, { name: 'RX', net: 'MCU_RX' }] }] } },
-  { id: 'accessory', description: 'Accessory KiCad 80 × 50 mm • prototype / ยังไม่วัดชิ้นงาน', board: parseBoardManifest(accessoryManifest) },
-  { id: 'fan', description: 'Fan 40 × 40 × 10 mm · reference dimensions', board: { name: 'Fan 40 mm', width: 40, height: 40, thickness: 10, holes: cornerHoles(40, 40, 4), components: [], connectors: [{ id: 'power', name: 'Fan 5V / GND', x: 20, y: 20, z: 5, type: '2-pin fan lead', pins: [{ name: '+', net: '/ACCESSORY_5V', voltage: 5 }, { name: '-', net: '/GND', voltage: 0 }] }] } },
+  { id: 'sbc', description: 'ขนาด/รู/ชิ้นส่วนสมมติสำหรับจัดวาง • ไม่อ้างอิงสินค้ารุ่นใด', board: { name: 'SBC แม่แบบขนาด', width: 85, height: 56, thickness: 1.6, holes: [{ x: 3.5, y: 3.5, diameter: 2.8 }, { x: 61.5, y: 3.5, diameter: 2.8 }, { x: 3.5, y: 52.5, diameter: 2.8 }, { x: 61.5, y: 52.5, diameter: 2.8 }], components: [{ reference: 'USB', name: 'USB stack', x: 76.5, y: 25, width: 17, height: 20, depth: 16 }, { reference: 'CPU', name: 'CPU + heatsink envelope', x: 42, y: 27, width: 24, height: 24, depth: 12 }], connectors: [] } },
+  { id: 'pico', description: 'ขนาด/รูสมมติสำหรับจัดวาง • ต้องแทนด้วยข้อมูลบอร์ดที่เลือก', board: { name: 'MCU แม่แบบขนาด', width: 51, height: 21, thickness: 1.6, holes: cornerHoles(51, 21, 2.5), components: [{ reference: 'MCU', name: 'Microcontroller', x: 26, y: 11, width: 12, height: 12, depth: 3 }], connectors: [] } },
+  { id: 'accessory', description: 'ขอบบอร์ด/รู/net จาก KiCad ใน repo • envelope เป็นค่าที่ออกแบบเผื่อ', board: parseBoardManifest(accessoryManifest) },
+  { id: 'fan', description: 'ขนาด/รูสมมติ 40 × 40 × 10 mm • ยังไม่ได้เลือกพัดลมรุ่นจริง', board: { name: 'พัดลมแม่แบบขนาด', width: 40, height: 40, thickness: 10, holes: cornerHoles(40, 40, 4), components: [], connectors: [] } },
 ];
 export function defaultDesign(): Design {
-  return parseDesign({ schemaVersion: 1, units: 'mm', name: 'POS Café 7-inch prototype', screen: { width: 165, height: 105, activeWidth: 154, activeHeight: 86, thickness: 6 }, wall: 2.4, clearance: 0.3, depth: 50, tilt: 60, cableClearance: 12, bed: [220, 220, 250], modules: [
+  return parseDesign({ schemaVersion: 1, units: 'mm', name: 'POS Café reference blueprint', screen: { width: 165, height: 105, activeWidth: 154, activeHeight: 86, thickness: 6 }, wall: 2.4, clearance: 0.3, depth: 50, tilt: 60, cableClearance: 12, bed: [220, 220, 250], modules: [
     { ...structuredClone(BOARD_CATALOG[0].board), id: 'sbc', kind: 'board', position: [-41, 23.5, 30], rotation: 0 },
     { ...structuredClone(BOARD_CATALOG[2].board), id: 'accessory', kind: 'board', position: [40, -30, 30], rotation: 0 },
     { ...structuredClone(BOARD_CATALOG[3].board), id: 'fan', kind: 'fan', position: [52, 29, 31], rotation: 0 },
@@ -206,9 +206,21 @@ export function exportPartStl(part: PrintPart): Uint8Array {
   }
   return result;
 }
+export const BUILD_NOTES = `POS Café Maker — พิมพ์เขียวต้นแบบ
+
+STL เป็นชิ้นงานจริงที่สร้างจากตัวเลขใน design.json ไม่ใช่อุปกรณ์ที่ทดสอบประกอบแล้ว
+ค่าจอ SBC MCU พัดลม และช่องพอร์ตเริ่มต้นเป็นแม่แบบสมมติ ไม่ใช่สเปกสินค้ารุ่นใด
+PCB accessory มี sourceFile/sourceHash อ้างอิงแบบ KiCad; ขอบบอร์ด รู และ net มาจากแบบ ส่วน envelope เป็นพื้นที่เผื่อตามการออกแบบ ไม่ใช่การวัดชิ้นส่วนจริง
+หากแก้ขนาดในเว็บ sourceHash ยังคงอ้างอิง PCB ต้นทาง ไม่ยืนยันว่าค่าที่แก้ตรงกับ PCB
+วัดจอ บอร์ด รูยึด หัวปลั๊ก ขาอุปกรณ์ และระยะงอสายจริง แล้วบันทึก JSON ฉบับของคุณ
+เติม connector/pinout จาก datasheet ของอุปกรณ์ที่เลือกก่อนสร้างผังสาย ห้ามใช้ภาพ net แทนการตรวจวงจร
+ยังไม่ได้พิมพ์/ผลิต PCB/ประกอบ/ทดสอบโหลด ความร้อน กลับขั้ว หรือยืนยัน G-code ด้วย slicer
+ตรวจ STL ใน slicer ทดสอบชิ้นส่วนและวงจรจริงก่อนผลิตซ้ำหรือใช้ในร้าน
+คู่มือ: https://github.com/boombignose/pos-cafe-maker/blob/main/docs/BLUEPRINT.md
+`;
 export function exportDesignZip(design: Design): Uint8Array {
   const d = parseDesign(design), model = generateModel(d);
-  return zipSync(Object.fromEntries([...model.parts.map(p => [`${p.name}.stl`, exportPartStl(p)] as const), ['design.json', strToU8(JSON.stringify(d, null, 2))]]));
+  return zipSync(Object.fromEntries([...model.parts.map(p => [`${p.name}.stl`, exportPartStl(p)] as const), ['design.json', strToU8(JSON.stringify(d, null, 2))], ['BUILD-NOTES.txt', strToU8(BUILD_NOTES)]]));
 }
 export function triangles(geometry: Geom3): Float32Array {
   const positions: number[] = [];
