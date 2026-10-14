@@ -6,7 +6,7 @@ This implements the user's 2026-10-14 plan, with destination changed by the user
 | Requirement | Delivery/check |
 |---|---|
 | Adjustable mm screen/board/ports, placement, rotation, assembled/exploded/transparent | Designer + browser evidence |
-| Canonical 3D + print-ready separate frame/body/lid/base STL and JSON/ZIP | Geometry tests + slicer review |
+| Canonical 3D + prototype separate frame/body/lid/base STL and JSON/ZIP | Geometry tests + slicer review |
 | 5V accessory PCB with reverse polarity/fuse, BOM/schematic/wiring | KiCad sources + ERC/DRC + prototype labels |
 | KiCad to JSON geometry, regenerated mounting posts | Manifest round trip test |
 | Café sales/options/recipes, cash and confirmed transfer | API + browser/DB tests |
@@ -19,7 +19,7 @@ Physical prints, assembled hardware thermal/load tests and manufactured PCB are 
 
 ## Current evidence
 - Web/demo: build and fresh ZIP browser smoke PASS.
-- TypeScript tests:32 PASS,1 optional PostgreSQL SKIP locally; Python hardware tests:5 PASS.
+- TypeScript tests:37 PASS,1 optional PostgreSQL SKIP locally; Python hardware tests:6 PASS.
 - Default CAD:closed meshes at0.001mm and no solid default collisions; physical fit unverified.
 - KiCad10.0.7:ERC/DRC/parity/unconnected/exclusions0; hashes current.
 - Slicer:official Prusa2.9.6 verified but fails to start on this Mac; no slicing claim.
