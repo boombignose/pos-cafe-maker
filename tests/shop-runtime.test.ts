@@ -25,7 +25,9 @@ test('shop launcher preserves data through restart and backup/restore; failed re
    try{if((await fetch(`http://127.0.0.1:${httpPort}/api/health`)).ok)return;}catch{}
    await new Promise(r=>setTimeout(r,100));
   }
-  assert.fail(`Launcher not ready: ${output}`);
+  const config=await readFile(join(directory,'config.json'),'utf8').then(s=>JSON.parse(s).initialized).catch(()=>false);
+  const log=await readFile(join(directory,'postgres.log'),'utf8').catch(()=>'(no PostgreSQL log)');
+  assert.fail(`Launcher not ready (initialized=${config}): ${output}\n${log.slice(-2500)}`);
  }
  async function stop(){if(child&&child.exitCode===null){const exited=once(child,'exit');child.kill('SIGTERM');await exited;}child=undefined;}
  let cookie='',csrf='',epoch='';const origin=`http://127.0.0.1:${httpPort}`;
