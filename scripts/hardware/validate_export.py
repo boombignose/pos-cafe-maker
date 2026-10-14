@@ -29,6 +29,11 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def artifact_files(root):
+    # KiCad .kicad_prl stores local view preferences, not the design.
+    return [p for folder in ['hardware/sources','hardware/manufacturing'] for p in (root/folder).rglob('*') if p.is_file() and p.suffix != '.kicad_prl']
+
+
 def verify_record(root=ROOT):
     record = json.loads((root/'hardware/reports/validation.json').read_text())
     for name,expected in record['sha256'].items():
@@ -79,7 +84,7 @@ def main():
         ['pcb','export','svg','--layers','F.Cu,B.Cu,F.SilkS,F.Fab,Edge.Cuts','--mode-single','--fit-page-to-board','--exclude-drawing-sheet','-o',str(manufacturing/'accessory-layout.svg'),str(pcb)],
         ['pcb','export','step','--force','--board-only','--include-tracks','--include-pads','-o',str(manufacturing/'accessory-board.step'),str(pcb)],
     ]:run(command)
-    files=[p for folder in ['hardware/sources','hardware/manufacturing'] for p in (ROOT/folder).rglob('*') if p.is_file()]
+    files=artifact_files(ROOT)
     files.extend([ROOT/'hardware/board.json',ROOT/'hardware/BOM.csv',ROOT/'hardware/wiring.json',ROOT/'hardware/wiring.svg',reports/'erc.json',reports/'drc.json'])
     record={'status':'digital-checks-pass; physical-prototype-unverified','kicadVersion':version,'checkedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'sha256':{str(p.relative_to(ROOT)):digest(p) for p in sorted(files)}}
     (reports/'validation.json').write_text(json.dumps(record,indent=2)+'\n')
