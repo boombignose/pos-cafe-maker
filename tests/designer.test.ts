@@ -7,6 +7,54 @@ import { BOARD_CATALOG, defaultDesign, parseDesign, parseBoardManifest, generate
 const { measurements, booleans, primitives } = modeling;
 const design = () => defaultDesign();
 
+test('screen reference follows the documented Waveshare C outline and rounded enclosure corners remove material', () => {
+  const d = design();
+  assert.deepEqual(d.screen, { width: 164.9, height: 106.96, thickness: 8, activeWidth: 154.21, activeHeight: 85.92 });
+  const frame = generateModel(d).parts[0];
+  const corner = primitives.cuboid({ size: [0.5, 0.5, 1], center: [(d.screen.width + 16) / 2 - 0.25, (d.screen.height + 16) / 2 - 0.25, d.wall / 2] });
+  assert.ok(Math.abs(measurements.measureVolume(booleans.intersect(frame.geometry, corner))) < 0.001);
+});
+
+test('front fasteners have shallow countersunk head clearance while keeping the retaining face intact', () => {
+  const d = design(), frame = generateModel(d).parts[0];
+  const head = primitives.cylinder({ radius: 2.3, height: 0.2, center: [(d.screen.width + 16) / 2 - 5, (d.screen.height + 16) / 2 - 5, 0.2] });
+  assert.ok(Math.abs(measurements.measureVolume(booleans.intersect(frame.geometry, head))) < 0.001);
+});
+
+test('rear pedestal fastening bores line up with the lid and rear stops support the screen without occupying it', () => {
+  const d = design(), m = generateModel(d);
+  const lid = m.parts[2], base = m.parts[3];
+  for (const x of [-40, 40]) for (const y of [-25, 25]) {
+    const probe = primitives.cylinder({ radius: 0.5, height: 30, center: [x, y, d.depth + d.wall] });
+    const world = modeling.transforms.translate(m.assembly.position, modeling.transforms.rotateX(m.assembly.rotationX, probe));
+    assert.ok(Math.abs(measurements.measureVolume(booleans.intersect(lid.geometry, probe))) < 0.001, 'lid screw passage is open');
+    assert.ok(Math.abs(measurements.measureVolume(booleans.intersect(base.geometry, world))) < 0.001, 'matching pedestal passage is open');
+    const rim = primitives.cylinder({ radius: 4.5, height: d.wall, center: [x, y, d.depth + d.wall / 2] });
+    assert.ok(measurements.measureVolume(booleans.intersect(lid.geometry, rim)) > 60, 'lid has material around the fastening');
+  }
+  const stop = primitives.cuboid({ size: [1, 1, 1], center: [d.screen.width / 2 - 2, d.screen.height / 2 - 8, d.wall + d.screen.thickness + d.clearance + 0.5] });
+  assert.ok(measurements.measureVolume(booleans.intersect(lid.geometry, stop)) > 0.9, 'rear stop reaches the panel edge');
+});
+
+test('countertop assembly remains collision-free across larger screens and the lid cable-tie slots are open', () => {
+  for (const [width, height, depth, tilt] of [[164.9, 106.96, 50, 60], [180, 120, 60, 65], [200, 140, 70, 55]]) {
+    const d = design(); d.screen = { width, height, activeWidth: width - 12, activeHeight: height - 20, thickness: 8 }; d.depth = depth; d.tilt = tilt;
+    const m = generateModel(d);
+    assert.deepEqual(m.issues, [], `${width}mm assembly should clear electronics and fit the bed`);
+    for (const x of [-52, 52]) for (const y of [-7, 7]) {
+      const slot = primitives.cuboid({ size: [1, 1, d.wall + 1], center: [x, y, d.depth + d.wall / 2] });
+      assert.ok(Math.abs(measurements.measureVolume(booleans.intersect(m.parts[2].geometry, slot))) < 0.001);
+    }
+  }
+});
+
+test('thick-wall prototypes report printed lid stops intersecting the body instead of claiming clearance', () => {
+  for (const wall of [5, 6]) {
+    const d = design(); d.wall = wall; d.modules = []; d.ports = [];
+    assert.ok(generateModel(d).issues.some(i => i.kind === 'collision' && i.message.includes('body') && i.message.includes('lid')));
+  }
+});
+
 test('rejects invalid imported units, dimensions, schema versions and hidden oversized geometry', () => {
   const d = design();
   assert.throws(() => parseDesign({ ...d, schemaVersion: 2 }));
@@ -125,7 +173,7 @@ test('lid export places its broad outer surface on the bed so mounting posts pri
   const data = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const vertices: [number, number, number][] = [];
   for (let offset = 84; offset < bytes.length; offset += 50) for (let i = 0; i < 3; i++) vertices.push([data.getFloat32(offset + 12 + i * 12, true), data.getFloat32(offset + 16 + i * 12, true), data.getFloat32(offset + 20 + i * 12, true)]);
-  assert.ok(vertices.some(([x, y, z]) => Math.abs(x) < 0.01 && Math.abs(y) < 0.01 && Math.abs(z) < 0.01), 'lid corner broad face starts on Z=0');
+  assert.ok(vertices.some(([, , z]) => Math.abs(z) < 0.01), 'lid broad outer face starts on Z=0 after rounding the corners');
 });
 
 test('assembled electronics and printed parts are physically separate including screen corners', () => {
