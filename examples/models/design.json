@@ -3,11 +3,11 @@
   "units": "mm",
   "name": "POS Café reference blueprint",
   "screen": {
-    "width": 165,
-    "height": 105,
-    "activeWidth": 154,
-    "activeHeight": 86,
-    "thickness": 6
+    "width": 164.9,
+    "height": 106.96,
+    "activeWidth": 154.21,
+    "activeHeight": 85.92,
+    "thickness": 8
   },
   "wall": 2.4,
   "clearance": 0.3,
@@ -71,7 +71,7 @@
       "id": "sbc",
       "kind": "board",
       "position": [
-        -41,
+        -38,
         23.5,
         30
       ],
