@@ -1,0 +1,3 @@
+# Hardware design license
+Copyright 2026 boombignose. Hardware design sources, BOM/wiring authored here, manufacturing files, hardware/board.json and examples/models/{*.stl,design.json,*.zip} are licensed CERN-OHL-P-2.0; see ../LICENSES/CERN-OHL-P-2.0.txt. Source location: https://github.com/boombignose/pos-cafe-maker . Keep copyright notices and source location when redistributing.
+Software, including the geometry generator and manifest scripts, is MIT (../LICENSE). Vendor names and datasheet links identify parts; vendor documents and trademarks are not relicensed by this repository. Hardware is an unverified physical prototype; digital ERC/DRC and mesh checks do not certify electrical, thermal, mechanical or commercial suitability.

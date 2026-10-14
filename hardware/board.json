@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "units": "mm",
+  "coordinateSystem": "lower-left; component envelopes centered; depth above PCB top",
+  "sourceFile": "accessory.kicad_pcb",
+  "sourceHash": "20787188ea8834fed780d888193e0966ab1a4c75946fb398601456189aaac2b8",
+  "board": {
+    "name": "accessory",
+    "width": 80.0,
+    "height": 50.0,
+    "thickness": 1.6,
+    "holes": [
+      {
+        "x": 4.0,
+        "y": 46.0,
+        "diameter": 3.2
+      },
+      {
+        "x": 76.0,
+        "y": 46.0,
+        "diameter": 3.2
+      },
+      {
+        "x": 4.0,
+        "y": 4.0,
+        "diameter": 3.2
+      },
+      {
+        "x": 76.0,
+        "y": 4.0,
+        "diameter": 3.2
+      }
+    ],
+    "components": [
+      {
+        "reference": "J1",
+        "name": "5V DC IN",
+        "x": 12.0,
+        "y": 25.0,
+        "width": 10.0,
+        "height": 8.0,
+        "depth": 12.0
+      },
+      {
+        "reference": "F1",
+        "name": "60R075XU",
+        "x": 27.0,
+        "y": 25.0,
+        "width": 10.2,
+        "height": 3.1,
+        "depth": 16.2
+      },
+      {
+        "reference": "D1",
+        "name": "1N5822-E3/54",
+        "x": 45.0,
+        "y": 25.0,
+        "width": 18.5,
+        "height": 5.5,
+        "depth": 6.5
+      },
+      {
+        "reference": "J2",
+        "name": "FAN DC OUT",
+        "x": 68.0,
+        "y": 25.0,
+        "width": 10.0,
+        "height": 8.0,
+        "depth": 12.0
+      },
+      {
+        "reference": "R1",
+        "name": "MFR-25FBF52-1K",
+        "x": 44.0,
+        "y": 38.0,
+        "width": 10.5,
+        "height": 3.3,
+        "depth": 4.0
+      },
+      {
+        "reference": "D2",
+        "name": "WP7113SGC",
+        "x": 58.0,
+        "y": 38.0,
+        "width": 5.3,
+        "height": 5.3,
+        "depth": 10.0
+      }
+    ],
+    "connectors": [
+      {
+        "id": "J1",
+        "name": "5V DC IN",
+        "x": 12.0,
+        "y": 25.0,
+        "z": 1.6,
+        "type": "screw-terminal",
+        "pins": [
+          {
+            "name": "1",
+            "net": "/5V_IN"
+          },
+          {
+            "name": "2",
+            "net": "/GND"
+          }
+        ]
+      },
+      {
+        "id": "J2",
+        "name": "FAN DC OUT",
+        "x": 68.0,
+        "y": 25.0,
+        "z": 1.6,
+        "type": "screw-terminal",
+        "pins": [
+          {
+            "name": "1",
+            "net": "/ACCESSORY_5V"
+          },
+          {
+            "name": "2",
+            "net": "/GND"
+          }
+        ]
+      }
+    ]
+  }
+}

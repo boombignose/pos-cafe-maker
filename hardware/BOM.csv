@@ -1,0 +1,6 @@
+References,Quantity,Manufacturer,ManufacturerPartNumber,Value,Package,Footprint,ManufacturerDatasheet
+"J1 J2",2,Wurth Elektronik,691137710002,2-pin 5mm screw terminal,THT,BBN:Terminal_5mm,https://www.we-online.com/components/products/datasheet/691137710002.pdf
+F1,1,Littelfuse,60R075XU,0.75A hold 1.50A trip at 20C; resettable PTC,Radial P5.08,BBN:PTC_P5.08,https://www.littelfuse.com/assetdocs/littelfuse-ptc-60r-datasheet?assetguid=4958c2df-9bef-4f0d-aef5-841b1564130c
+D1,1,Vishay,1N5822-E3/54,3A 40V Schottky,DO-201AD P15.24,BBN:Axial_P15.24,https://www.vishay.com/docs/88526/1n5820.pdf
+R1,1,Yageo,MFR-25FBF52-1K,1kohm 1% 0.25W,Axial P7.62,BBN:Resistor_P7.62,https://www.yageogroup.com/content/Resource%20Library/Datasheet/YAGEO-MFR_DATASHEET.pdf
+D2,1,Kingbright,WP7113SGC,Green power LED,THT D5 P2.54,BBN:LED_D5,https://www.kingbrightusa.com/images/catalog/SPEC/WP7113SGC.pdf
