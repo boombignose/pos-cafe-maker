@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "filename": "accessory.kicad_pro",
+    "version": 1
+  },
+  "board": {
+    "design_settings": {
+      "rules": {
+        "min_clearance": 0.25,
+        "min_track_width": 0.25,
+        "min_hole_clearance": 0.25,
+        "min_through_hole_diameter": 0.3,
+        "min_copper_edge_clearance": 0.5
+      },
+      "rule_severities": {
+        "missing_courtyard": "warning",
+        "track_not_centered_on_via": "warning",
+        "footprint_type_mismatch": "warning"
+      },
+      "drc_exclusions": []
+    }
+  },
+  "net_settings": {
+    "classes": [
+      {
+        "name": "Default",
+        "clearance": 0.25,
+        "track_width": 1.0,
+        "via_diameter": 0.8,
+        "via_drill": 0.4
+      }
+    ],
+    "meta": {
+      "version": 4
+    }
+  },
+  "erc": {
+    "erc_exclusions": []
+  }
+}

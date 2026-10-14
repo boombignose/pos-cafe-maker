@@ -1,0 +1,1 @@
+(fp_lib_table (version 7) (lib (name "BBN") (type "KiCad") (uri "${KIPRJMOD}/BBN.pretty") (options "") (descr "Project-owned through-hole footprints")))
