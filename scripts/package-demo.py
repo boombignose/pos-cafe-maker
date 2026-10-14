@@ -4,7 +4,7 @@ import argparse
 import zipfile
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--out', default='../output/pos-cafe-maker/pos-cafe-maker-demo-v0.1.1.zip')
+parser.add_argument('--out', default='../output/pos-cafe-maker/pos-cafe-maker-demo-v0.1.2.zip')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 output = Path(args.out).resolve()
@@ -24,7 +24,7 @@ for name in ['LICENSE', 'LICENSES/CERN-OHL-P-2.0.txt', 'docs/BLUEPRINT.md', 'doc
 with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
     for name, file in sorted(entries.items()):
         archive.write(file, 'pos-cafe-maker-demo/' + name)
-    archive.writestr('pos-cafe-maker-demo/START-HERE.txt', 'POS Cafe Maker DEMO v0.1.1\n\nRun: python3 -m http.server 8080 --bind 127.0.0.1\nOpen: http://localhost:8080\n\nSimulated local browser records. No Docker, database or API key. Hardware is an unmanufactured and untested physical prototype. Read docs before printing/wiring.\n')
+    archive.writestr('pos-cafe-maker-demo/START-HERE.txt', 'POS Cafe Maker DEMO v0.1.2\n\nRun: python3 -m http.server 8080 --bind 127.0.0.1\nOpen: http://localhost:8080\n\nSimulated local browser records. No Docker, database or API key. Hardware is an unmanufactured and untested physical prototype. Read docs before printing/wiring.\n')
 with zipfile.ZipFile(output) as archive:
     names = archive.namelist()
     assert len(names) == len(set(names)), 'duplicate archive entries'

@@ -20,7 +20,7 @@ try{
  await page.getByLabel('นมโอ๊ต').check();await page.getByRole('button',{name:'เพิ่มรายการ',exact:true}).click();
  await page.getByRole('button',{name:'โอนเงิน',exact:true}).click();
  await page.getByLabel('ตรวจยอดเงินเข้าบัญชีแล้ว').check();await page.getByRole('button',{name:'รับชำระและออกคิว →'}).click();
- await page.getByRole('heading',{name:'คิว 002'}).waitFor();steps.push('latte oat replacement + confirmed transfer80 THB');
+ await page.getByRole('heading',{name:'คิว 002'}).waitFor();await page.getByRole('button',{name:'ขายรายการถัดไป',exact:true}).click();steps.push('latte oat replacement + confirmed transfer80 THB');
  await page.getByLabel('บทบาทเดโม').selectOption('bar');await page.getByRole('link',{name:/คิวบาร์/}).click();
  await page.getByRole('heading',{name:'#001'}).waitFor();await page.getByRole('button',{name:'เริ่มทำ',exact:true}).first().click();
  await page.getByRole('button',{name:'พร้อมรับแล้ว',exact:true}).first().click();
