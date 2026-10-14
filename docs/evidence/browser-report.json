@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "steps": [
+    "cash sale 55 THB, change45, queue001",
+    "latte oat replacement + confirmed transfer80 THB",
+    "bar preparing/ready + owner delivered",
+    "persisted reports net135 THB /2 sales",
+    "WebGL assembly/exploded + real STL ZIP download",
+    "screen dimension update rerenders"
+  ],
+  "pageErrors": [],
+  "checkedAt": "2026-10-14T08:16:41.455Z",
+  "base": "http://127.0.0.1:5182/"
+}
