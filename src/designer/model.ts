@@ -166,7 +166,7 @@ export function generateModel(input: Design): Model {
   const netEndpoints = new Map<string, Vec3[]>();
   for (const c of cables) for (const p of c.pins) netEndpoints.set(p.net, [...(netEndpoints.get(p.net) ?? []), c.point]);
   for (const [net, points] of netEndpoints) for (let i = 1; i < points.length; i++) wires.push({ net, from: points[0], to: points[i] });
-  const baseWidth = Math.min(w - 20, 130), standHeight = 42, run = standHeight / Math.tan(radians(d.tilt)), baseDepth = Math.max(80, 2 * (run / 2 + d.depth * Math.sin(radians(d.tilt)) + wall * 2));
+  const baseWidth = Math.max(w + wall * 6, d.screen.activeWidth + wall * 8 + d.clearance * 2 + 6), standHeight = 42, run = standHeight / Math.tan(radians(d.tilt)), baseDepth = Math.max(80, 2 * (run / 2 + d.depth * Math.sin(radians(d.tilt)) + wall * 2));
   const toeTop = wall * 3.5;
   const cheek2d = primitives.polygon({ points: [[0, 0], [run, 0], [run, standHeight + toeTop - wall], [0, toeTop - wall]] });
   const cheek = transforms.rotateX(Math.PI / 2, transforms.rotateY(Math.PI / 2, extrusions.extrudeLinear({ height: wall * 2 }, cheek2d)));
