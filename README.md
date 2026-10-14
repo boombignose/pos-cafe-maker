@@ -7,7 +7,7 @@
 
 [![Check kit](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml)
 
-[เริ่มใช้](#quick-start) · [ออกแบบและพิมพ์](docs/DESIGNER.md) · [วงจรและ PCB](docs/HARDWARE.md) · [ผลตรวจ](docs/TEST-REPORT.md)
+[เปิดเดโมออนไลน์](https://boombignose.github.io/pos-cafe-maker/) · [เริ่มใช้](#quick-start) · [ออกแบบและพิมพ์](docs/DESIGNER.md) · [วงจรและ PCB](docs/HARDWARE.md) · [ผลตรวจ](docs/TEST-REPORT.md)
 
 [ดาวน์โหลด Source ZIP](https://github.com/boombignose/pos-cafe-maker/archive/refs/heads/main.zip) · [ชุดไฟล์พร้อมลอง](https://github.com/boombignose/pos-cafe-maker/releases)
 
