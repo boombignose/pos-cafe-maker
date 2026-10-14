@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "mm",
-  "name": "POS Café 7-inch prototype",
+  "name": "POS Café reference blueprint",
   "screen": {
     "width": 165,
     "height": 105,
@@ -21,7 +21,7 @@
   ],
   "modules": [
     {
-      "name": "SBC / Raspberry Pi แบบอ้างอิง",
+      "name": "SBC แม่แบบขนาด",
       "width": 85,
       "height": 56,
       "thickness": 1.6,
@@ -67,32 +67,7 @@
           "depth": 12
         }
       ],
-      "connectors": [
-        {
-          "id": "gpio",
-          "name": "5V / GND / UART",
-          "x": 15,
-          "y": 51,
-          "z": 3,
-          "type": "GPIO",
-          "pins": [
-            {
-              "name": "2",
-              "net": "SBC_5V",
-              "voltage": 5
-            },
-            {
-              "name": "6",
-              "net": "SBC_GND",
-              "voltage": 0
-            },
-            {
-              "name": "8",
-              "net": "SBC_TX"
-            }
-          ]
-        }
-      ],
+      "connectors": [],
       "id": "sbc",
       "kind": "board",
       "position": [
@@ -235,7 +210,7 @@
       "rotation": 0
     },
     {
-      "name": "Fan 40 mm",
+      "name": "พัดลมแม่แบบขนาด",
       "width": 40,
       "height": 40,
       "thickness": 10,
@@ -262,28 +237,7 @@
         }
       ],
       "components": [],
-      "connectors": [
-        {
-          "id": "power",
-          "name": "Fan 5V / GND",
-          "x": 20,
-          "y": 20,
-          "z": 5,
-          "type": "2-pin fan lead",
-          "pins": [
-            {
-              "name": "+",
-              "net": "/ACCESSORY_5V",
-              "voltage": 5
-            },
-            {
-              "name": "-",
-              "net": "/GND",
-              "voltage": 0
-            }
-          ]
-        }
-      ],
+      "connectors": [],
       "id": "fan",
       "kind": "fan",
       "position": [
