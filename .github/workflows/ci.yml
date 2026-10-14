@@ -86,6 +86,20 @@ jobs:
       - run: npx playwright install chromium
       - run: node --import tsx scripts/shop-browser-smoke.mjs
       - run: python scripts/package-shop.py --out shop-release.zip
+      - name: Test fresh extracted Windows shop ZIP
+        shell: pwsh
+        run: |
+          $fresh = Join-Path $env:RUNNER_TEMP 'pos-shop-fresh'
+          Expand-Archive shop-release.zip $fresh
+          $package = Join-Path $fresh 'pos-cafe-maker-shop'
+          Push-Location $package
+          npm ci --omit=dev --no-audit --no-fund
+          $installExit = $LASTEXITCODE
+          Pop-Location
+          if ($installExit) { exit $installExit }
+          $env:SHOP_PACKAGE_DIR = $package
+          npx tsx --test tests/shop-runtime.test.ts
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
