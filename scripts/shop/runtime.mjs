@@ -121,7 +121,7 @@ export async function backupStatus(directory,cfg){
  catch(error){return {managed:true,lastBackup:null,file:null,error:error.code==='ENOENT'?null:'อ่านสถานะสำรองไม่ได้ ตรวจสิทธิ์และพื้นที่ว่าง'};}
 }
 export async function restore(directory,cfg,bin,path){
- const unlock=await takeLock(directory,'backup.lock');
+ const unlock=await takeLock(directory,'backup.lock');let committed=false;
  try{
   const meta=JSON.parse(await readFile(path+'.json','utf8'));
   const major=Number(await readFile(join(directory,'postgres','PG_VERSION'),'utf8'));
@@ -139,11 +139,11 @@ export async function restore(directory,cfg,bin,path){
    await recovered.query('SELECT id FROM orders LIMIT 1');await recovered.query('SELECT name FROM shop_settings WHERE singleton=true');
    await recovered.query('DELETE FROM sessions');await recovered.query('DELETE FROM login_limits');
   }finally{await recovered.end();}
-  await atomicJson(join(directory,'config.json'),{...cfg,database});
+  await atomicJson(join(directory,'config.json'),{...cfg,database});committed=true;
   // Config rename commits the restore; status metadata cannot turn a committed restore into a failure.
   try{await atomicJson(join(directory,'backup-status.json'),{managed:true,lastBackup:null,file:null,error:null,database,restoredAt:new Date().toISOString(),restoredFrom:basename(path)});}catch{console.warn('Warning: restore committed, but status metadata could not be written. Check permissions/disk space and make a fresh backup.');}
   return database;
- }finally{await unlock();}
+ }finally{try{await unlock();}catch(error){if(!committed)throw error;console.warn('Warning: restore committed; maintenance lock cleanup needs attention.');}}
 }
 export function openBrowser(port){
  if(process.env.POS_NO_BROWSER==='true')return;
