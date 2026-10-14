@@ -67,12 +67,15 @@ test('PostgreSQL API: concurrent checkout, atomic stock, immutable refunds, role
     });
     await t.test('exact SQL decimals, negative final consumption, oversell and queue uniqueness', async () => {
       const m = await owner('/api/menus','POST',{name:'Consume',category:'Test',priceSatang:5000,active:true,recipe:[{ingredientId,quantity:'0.100001'}],options:[]});
+      assert.equal(m.status,201,JSON.stringify(m.body));
       const stock = (await pool.query('SELECT stock FROM ingredients WHERE id=$1',[ingredientId])).rows[0].stock;
-      await owner('/api/stock','POST',{ingredientId,quantity:`-${stock}`,reason:'Set exact test stock'});
-      await owner('/api/stock','POST',{ingredientId,quantity:'0.100001',reason:'One remaining'});
+      const cleared=await owner('/api/stock','POST',{ingredientId,quantity:`-${stock}`,reason:'Set exact test stock'});
+      assert.equal(cleared.status,200,JSON.stringify(cleared.body));
+      const stocked=await owner('/api/stock','POST',{ingredientId,quantity:'0.100001',reason:'One remaining'});
+      assert.equal(stocked.status,200,JSON.stringify(stocked.body));
       const consume = (key:string) => bill(key,{items:[{menuId:m.body.id,quantity:1,optionIds:[]}]});
-      const results = await Promise.all([cashier('/api/checkout','POST',consume('race-a')),cashier('/api/checkout','POST',consume('race-b'))]);
-      assert.deepEqual(results.map(x=>x.status).sort(),[200,409]);
+      const results = await Promise.all([cashier('/api/checkout','POST',consume('oversell-race-a')),cashier('/api/checkout','POST',consume('oversell-race-b'))]);
+      assert.deepEqual(results.map(x=>x.status).sort(),[200,409],JSON.stringify(results));
       preparedId=results.find(x=>x.status===200)!.body.id;
       assert.equal((await pool.query('SELECT stock FROM ingredients WHERE id=$1',[ingredientId])).rows[0].stock,'0.000000');
       const ids=(await pool.query('SELECT queue_number FROM orders')).rows.map(x=>x.queue_number); assert.equal(new Set(ids).size,ids.length);

@@ -165,3 +165,28 @@ test('reference SBC supply stays electrically independent of accessory and gener
   const sbc = design().modules.find(m => m.id === 'sbc')!;
   assert.deepEqual(sbc.connectors[0].pins.map(p => p.net), ['SBC_5V', 'SBC_GND', 'SBC_TX']);
 });
+
+test('tilted support cheeks stay outside the active touchscreen and 20 mm front access corridor', () => {
+  for (const activeWidth of [154, 164]) {
+    const d = design(); d.screen.activeWidth = activeWidth;
+    const m = generateModel(d), base = m.parts.find(p => p.name === 'base')!;
+    const frontAccess = primitives.cuboid({ size: [activeWidth + 2 * d.clearance + 6, d.screen.activeHeight, 20], center: [0, 0, d.wall - 10] });
+    const assembledAccess = modeling.transforms.translate(m.assembly.position, modeling.transforms.rotateX(m.assembly.rotationX, frontAccess));
+    const blocked = Math.abs(measurements.measureVolume(booleans.intersect(base.geometry, assembledAccess)));
+    assert.ok(blocked < 0.001, `base blocks active area/front finger access by ${blocked} mm³`);
+    assert.ok(base.fitsBed, 'outboard support still fits the default 220 mm print bed');
+  }
+});
+
+test('default front perspective view has no base geometry between the eye and active glass', () => {
+  const d = design(), m = generateModel(d), span = Math.max(d.screen.width, d.screen.height, d.depth);
+  const camera: [number, number, number] = [span * 1.35, span * 1.8, span * 1.4];
+  const activeCorners = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => {
+    const point: [number, number, number] = [x * d.screen.activeWidth / 2, y * d.screen.activeHeight / 2, d.wall];
+    const anchor = modeling.transforms.translate(m.assembly.position, modeling.transforms.rotateX(m.assembly.rotationX, primitives.cuboid({ size: [0.001, 0.001, 0.001], center: point })));
+    return anchor;
+  });
+  const viewCone = modeling.hulls.hull(primitives.cuboid({ size: [0.001, 0.001, 0.001], center: camera }), ...activeCorners);
+  const obstructed = Math.abs(measurements.measureVolume(booleans.intersect(m.parts[3].geometry, viewCone)));
+  assert.ok(obstructed < 0.001, `perspective view is obstructed by ${obstructed} mm³ of base`);
+});
