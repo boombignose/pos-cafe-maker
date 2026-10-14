@@ -1,0 +1,57 @@
+name: Check kit
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: pos_test
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: pos_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U pos_test -d pos_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://pos_test:test-only-password@127.0.0.1:5432/pos_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: python3 -m unittest discover -s tests -p 'hardware*_test.py'
+      - run: python3 scripts/hardware/validate_export.py --check
+      - run: python3 scripts/hardware/return_manifest.py hardware/sources/accessory.kicad_pcb hardware/board.json --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pos-cafe-maker-demo
+          path: dist
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run dev -- --port 5176 > /tmp/pos-demo.log 2>&1 &
+      - run: node scripts/browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: docs/evidence
