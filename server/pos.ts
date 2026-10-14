@@ -2,12 +2,13 @@ import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { transaction } from './db.js';
 import { canonicalHash, requireCondition, type Checkout, type Menu, type Recipe } from './domain.js';
+import {settings} from './shop.js';
 
 type User = {id:string;username:string;role:'owner'|'cashier'|'bar'};
 export function ingredient(row:any) {return {id:row.id,name:row.name,unit:row.unit,stock:row.stock,lowStock:row.low_stock};}
 export function menu(row:any):Menu {return {id:row.id,name:row.name,category:row.category,priceSatang:Number(row.price_satang),active:row.active,recipe:row.recipe,options:row.options};}
 export function shift(row:any) {return row ? {id:row.id,openingCashSatang:Number(row.opening_cash_satang),expectedCashSatang:Number(row.expected_cash_satang),openedAt:row.opened_at,closedAt:row.closed_at,countedCashSatang:row.counted_cash_satang===null?null:Number(row.counted_cash_satang),differenceSatang:row.difference_satang===null?null:Number(row.difference_satang)} : null;}
-export function order(row:any) {return {id:row.id,queueNumber:row.queue_number,status:row.status,totalSatang:Number(row.total_satang),changeSatang:Number(row.change_satang),paymentMethod:row.payment_method,createdAt:new Date(row.created_at).toISOString(),items:row.items.map((item:any)=>({name:item.name,quantity:item.quantity,unitPriceSatang:item.unitPriceSatang,options:item.options}))};}
+export function order(row:any) {return {id:row.id,queueNumber:row.queue_number,status:row.status,totalSatang:Number(row.total_satang),changeSatang:Number(row.change_satang),paymentMethod:row.payment_method,createdAt:new Date(row.created_at).toISOString(),shop:row.shop,items:row.items.map((item:any)=>({name:item.name,quantity:item.quantity,unitPriceSatang:item.unitPriceSatang,options:item.options}))};}
 export async function catalog(pool:Pool) {
   const [menus,ingredients]=await Promise.all([pool.query('SELECT * FROM menus ORDER BY category,name,id'),pool.query('SELECT * FROM ingredients ORDER BY name,id')]);
   return {menus:menus.rows.map(menu),ingredients:ingredients.rows.map(ingredient)};
@@ -83,7 +84,7 @@ export async function checkout(pool:Pool, user:User, input:Checkout) {
     const day=(await client.query("SELECT (now() AT TIME ZONE 'Asia/Bangkok')::date::text AS day")).rows[0].day;
     const queue=(await client.query('INSERT INTO queues(day,last_number) VALUES($1,1) ON CONFLICT(day) DO UPDATE SET last_number=queues.last_number+1 RETURNING last_number',[day])).rows[0].last_number;
     const id=randomUUID(), change=input.paymentMethod==='cash'?input.amountTenderedSatang-total:0;
-    const inserted=(await client.query('INSERT INTO orders(id,user_id,shift_id,day,queue_number,total_satang,amount_tendered_satang,change_satang,payment_method,items,consumption) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',[id,user.id,activeShift.id,day,queue,total,input.amountTenderedSatang,change,input.paymentMethod,JSON.stringify(snapshots),JSON.stringify(consumption)])).rows[0];
+    const inserted=(await client.query('INSERT INTO orders(id,user_id,shift_id,day,queue_number,total_satang,amount_tendered_satang,change_satang,payment_method,items,consumption,shop) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *',[id,user.id,activeShift.id,day,queue,total,input.amountTenderedSatang,change,input.paymentMethod,JSON.stringify(snapshots),JSON.stringify(consumption),JSON.stringify(await settings(client))])).rows[0];
     await moveStock(client,consumption,user,'Paid sale',id);
     if(input.paymentMethod==='cash') await client.query('UPDATE shifts SET expected_cash_satang=expected_cash_satang+$2 WHERE id=$1',[activeShift.id,total]);
     return order(inserted);

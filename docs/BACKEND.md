@@ -1,4 +1,6 @@
-> **ส่วนต่อยอดทดลอง:** เดโมหลักไม่ใช้ backend นี้ และยังไม่ผ่าน PostgreSQL runtime ในเครื่องนี้ อย่าใช้ข้อมูลร้านจริงจนกว่าจะผ่าน DB integration และ backup/restore บนเครื่องเป้าหมาย
+# Backend ระบบร้าน 0.2.0
+
+ชุดพร้อมใช้เลือก [shop ZIP และ Windows launcher](INSTALL.md) ซึ่งจัดการ PostgreSQL ส่วนตัวและตั้งร้านผ่าน browser โดยไม่ใช้ Docker ส่วนคำสั่งด้านล่างใช้สำหรับนักพัฒนาที่มีฐานข้อมูล PostgreSQL เอง ไม่ใช้ managed backup/restore ของ launcher ระบบร้านผ่าน PostgreSQL integration และ restart/backup/restore ในการตรวจดิจิทัล ดู [ผลตรวจ](TEST-REPORT.md) แยกจากการใช้งานร้าน/เครื่องพิมพ์จริง
 
 Frontend เริ่มต้นใช้ข้อมูลจำลอง ต้อง build ใหม่ก่อนรัน backend เพื่อให้ UI เรียก API จริง:
 
@@ -8,9 +10,9 @@ VITE_APP_MODE=server npm run build
 
 ถ้ารัน `npm run build` โดยไม่ตั้งค่านี้ ผลลัพธ์จะยังเป็นเดโม localStorage แม้ Express จะทำงานอยู่
 
-# PostgreSQL backend (โหมดเพิ่มเติม)
+# PostgreSQL ภายนอกสำหรับนักพัฒนา
 
-**ตัวสาธิตเริ่มต้นทำงานในเบราว์เซอร์ ไม่ต้องใช้ Docker หรือ PostgreSQL** Backend นี้เป็นอีกโหมดสำหรับทดลองต่อยอดหลายเครื่อง ยังไม่ใช่หลักฐานว่าใช้งานกับร้านจริงได้แล้ว การทดสอบ unit ผ่านได้โดยไม่เชื่อมฐานข้อมูล ส่วน concurrency/SQL/permission integration ต้องรันกับ PostgreSQL จริงตามด้านล่าง สถานะล่าสุดให้ดูรายงานทดสอบของ release
+**ตัวสาธิตเริ่มต้นทำงานในเบราว์เซอร์ ไม่ต้องใช้ Docker หรือ PostgreSQL** Backend นี้ใช้เป็นระบบกลางหลายเครื่องได้ ผลตรวจซอฟต์แวร์ยังไม่ยืนยันการใช้งานร้านหรือเครื่องพิมพ์ของคุณ การทดสอบ unit ผ่านได้โดยไม่เชื่อมฐานข้อมูล ส่วน concurrency/SQL/permission integration ต้องรันกับ PostgreSQL จริงตามด้านล่าง สถานะล่าสุดให้ดูรายงานทดสอบของ release
 
 ## เริ่ม backend เมื่อมี PostgreSQL
 

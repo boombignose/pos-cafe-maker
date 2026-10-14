@@ -1,5 +1,9 @@
 node_modules/
 dist/
+runtime/
+shop-dist/
+config.json
+SETUP-TOKEN.txt
 .env
 *.log
 .superpowers/

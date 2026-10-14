@@ -16,9 +16,14 @@ export async function migrate(pool:Pool):Promise<void> {
     const exists=await client.query("SELECT to_regclass(current_schema() || '.schema_migrations') AS present");
     if(exists.rows[0].present) {
       const applied=await client.query('SELECT version FROM schema_migrations WHERE version=1');
-      if(applied.rowCount) return;
+      if(!applied.rowCount) await client.query(sql);
+    }else{
+      await client.query(sql);
     }
-    await client.query(sql);
+    for(const [version,path] of [[2,'./migrations/002-shop.sql'],[3,'./migrations/003-recovery.sql']] as const){
+      if(!(await client.query('SELECT 1 FROM schema_migrations WHERE version=$1',[version])).rowCount)
+        await client.query(await readFile(new URL(path,import.meta.url),'utf8'));
+    }
   });
 }
 export async function bootstrapOwner(pool:Pool, username?:string, password?:string):Promise<void> {

@@ -1,0 +1,7 @@
+import React,{useState} from 'react';
+import {api,type User} from './api';
+export default function UserEditor({user,onDone,onCancel}:{user:User;onDone:()=>void;onCancel:()=>void}){
+ const[role,setRole]=useState(user.role),[active,setActive]=useState(user.active!==false),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ async function save(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');try{await api(`/users/${user.id}`,'PATCH',{role,active,...(password?{password}:{})});onDone();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <form className="panel" onSubmit={save}><h3>จัดการบัญชี {user.username}</h3><label>หน้าที่บัญชี<select value={role} onChange={e=>setRole(e.target.value as User['role'])}><option value="owner">เจ้าของร้าน</option><option value="cashier">แคชเชียร์</option><option value="bar">บาร์</option></select></label><label className="check"><input type="checkbox" checked={active} onChange={e=>setActive(e.target.checked)}/>เปิดใช้งานบัญชี</label><label>รหัสผ่านใหม่<input type="password" minLength={12} maxLength={128} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><small>เว้นว่างเพื่อใช้รหัสเดิม การบันทึกจะออกจากระบบทุกจอของบัญชีนี้</small><p role="alert" className="error">{error}</p><div className="actions"><button type="button" onClick={onCancel}>ยกเลิก</button><button className="primary" disabled={busy}>บันทึกบัญชี</button></div></form>;
+}

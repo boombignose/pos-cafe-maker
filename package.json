@@ -1,12 +1,16 @@
 {
   "name": "pos-cafe-maker",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "server": "tsx server/index.ts",
     "build": "tsc --noEmit && vite build && node scripts/copy-licenses.mjs",
+    "build:shop": "node scripts/build-shop.mjs",
+    "shop": "node scripts/shop/cli.mjs start",
+    "backup": "node scripts/shop/cli.mjs backup",
+    "restore": "node scripts/shop/cli.mjs restore",
     "test": "tsx --test tests/*.test.ts",
     "test:db": "tsx --test tests/db.test.ts",
     "models": "tsx scripts/export-models.ts",

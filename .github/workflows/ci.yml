@@ -56,3 +56,54 @@ jobs:
         with:
           name: browser-evidence
           path: docs/evidence
+  windows-shop:
+    runs-on: windows-2025
+    env:
+      TEST_DATABASE_URL: postgresql://pos_test@127.0.0.1:55439/pos_test
+      RUN_SHOP_RUNTIME: 'true'
+      POS_NO_BROWSER: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Start isolated PostgreSQL test cluster
+        shell: pwsh
+        run: |
+          $pg = 'C:\Program Files\PostgreSQL\17\bin'
+          "POS_PG_BIN=$pg" >> $env:GITHUB_ENV
+          $data = Join-Path $env:RUNNER_TEMP 'pos-ci-postgres'
+          & "$pg\initdb.exe" -D $data -U pos_test --auth=trust --encoding=UTF8 --locale=C
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          & "$pg\pg_ctl.exe" -D $data -l (Join-Path $env:RUNNER_TEMP 'pos-ci-postgres.log') -o '-h 127.0.0.1 -p 55439' -w start
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          & "$pg\createdb.exe" -h 127.0.0.1 -p 55439 -U pos_test pos_test
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - run: npm ci
+      - run: npm run build:shop
+      - run: npm test
+      - run: npx playwright install chromium
+      - run: node --import tsx scripts/shop-browser-smoke.mjs
+      - run: python scripts/package-shop.py --out shop-release.zip
+      - name: Test fresh extracted Windows shop ZIP
+        shell: pwsh
+        run: |
+          $fresh = Join-Path $env:RUNNER_TEMP 'pos-shop-fresh'
+          Expand-Archive shop-release.zip $fresh
+          $package = Join-Path $fresh 'pos-cafe-maker-shop'
+          Push-Location $package
+          npm ci --omit=dev --no-audit --no-fund
+          $installExit = $LASTEXITCODE
+          Pop-Location
+          if ($installExit) { exit $installExit }
+          $env:SHOP_PACKAGE_DIR = $package
+          npx tsx --test tests/shop-runtime.test.ts
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-shop-evidence
+          path: |
+            docs/evidence/shop
+            shop-release.zip
