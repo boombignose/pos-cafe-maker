@@ -42,5 +42,23 @@ class HardwareReportsTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Stale'):
                 module.verify_record(root)
 
+    def test_local_kicad_view_cache_is_not_a_release_artifact(self):
+        spec = importlib.util.spec_from_file_location('validate_export3', SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertTrue(hasattr(module, 'artifact_files'), 'Artifact selection must omit local KiCad view caches')
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            sources = root/'hardware/sources'
+            sources.mkdir(parents=True)
+            pcb = sources/'accessory.kicad_pcb'
+            project = sources/'accessory.kicad_pro'
+            cache = sources/'accessory.kicad_prl'
+            for path in (pcb, project, cache):
+                path.write_text('fixture')
+            self.assertEqual(set(module.artifact_files(root)), {pcb, project})
+            cache.unlink()
+            self.assertEqual(set(module.artifact_files(root)), {pcb, project})
+
 if __name__ == '__main__':
     unittest.main()
