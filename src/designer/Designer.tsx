@@ -23,7 +23,7 @@ const errorText = (e: unknown) => e instanceof Error ? e.message : 'ไม่ส
 
 export default function Designer() {
   const [design, setDesign] = useState(defaultDesign);
-  const [view, setView] = useState<'assembled' | 'exploded' | 'transparent'>('transparent');
+  const [view, setView] = useState<'assembled' | 'exploded' | 'transparent'>('assembled');
   const [wiring, setWiring] = useState(true), [selected, setSelected] = useState('sbc');
   const [message, setMessage] = useState(''), [error, setError] = useState('');
   const [holesDraft, setHolesDraft] = useState('');
@@ -61,7 +61,7 @@ export default function Designer() {
   const model = result.model;
   return <section className="designer" aria-label="ออกแบบกล่อง POS">
     <div className="designer-heading"><div><p className="designer-eyebrow">DESIGN / PRINT / BUILD</p><h2>พิมพ์เขียวเครื่องของคุณ</h2><p>วัดอุปกรณ์จริง แทนค่าแม่แบบ แล้วส่งออกชิ้นงานไปตรวจและสร้างต่อ</p></div><span className="designer-prototype">PROTOTYPE · ยังไม่ทดสอบชิ้นงานจริง</span></div>
-    <p className="designer-hint">ค่าเริ่มต้นของจอ บอร์ดทั่วไป พัดลมและช่องพอร์ตเป็นขนาดสมมติสำหรับจัดวาง ส่วน PCB accessory ใช้แบบ KiCad ที่แจก ขนาดพื้นที่เผื่อชิ้นส่วนยังต้องวัดจริง · <a href="https://github.com/boombignose/pos-cafe-maker/blob/main/docs/BLUEPRINT.md" target="_blank" rel="noreferrer">ที่มาข้อมูลและคู่มือสร้างต่อ</a></p>
+    <p className="designer-hint">ขนาดจอเริ่มต้นอ้างอิง Waveshare 7inch HDMI LCD (C) จากผู้ผลิต ตำแหน่งพื้นที่แสดงผลถือว่าอยู่กลางกรอบและยังต้องวัดพอร์ต/จุดกดจอจริง บอร์ดทั่วไปและพัดลมเป็นแม่แบบ ส่วน PCB accessory มาจาก KiCad · <a href="https://github.com/boombignose/pos-cafe-maker/blob/main/docs/BLUEPRINT.md" target="_blank" rel="noreferrer">ที่มาข้อมูลและคู่มือสร้างต่อ</a></p>
     <div className="designer-layout">
       <aside className="designer-controls">
         <details open><summary>01 · จอและกล่อง <span>mm</span></summary><div className="designer-fields">

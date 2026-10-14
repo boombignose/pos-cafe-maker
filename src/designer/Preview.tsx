@@ -40,7 +40,7 @@ export default function Preview({ model, design, view, wiring }: { model: Model;
       return new THREE.Mesh(geo, material);
     }
     model.parts.forEach((part, i) => {
-      const obj = mesh(triangles(part.geometry), ['#f2b86a', '#466879', '#879eaa', '#d78554'][i], view === 'transparent' && part.name !== 'base' ? 0.22 : 1);
+      const obj = mesh(triangles(part.geometry), ['#e7e1d4', '#283f36', '#617267', '#283f36'][i], view === 'transparent' && part.name !== 'base' ? 0.22 : 1);
       if (part.name === 'base') scene.add(obj);
       else {
         if (view === 'exploded') obj.position.z = part.name === 'frame' ? -32 : part.name === 'lid' ? 42 : 0;

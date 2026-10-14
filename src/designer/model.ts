@@ -64,8 +64,8 @@ export const BOARD_CATALOG: { id: string; description: string; board: Board }[] 
   { id: 'fan', description: 'ขนาด/รูสมมติ 40 × 40 × 10 mm • ยังไม่ได้เลือกพัดลมรุ่นจริง', board: { name: 'พัดลมแม่แบบขนาด', width: 40, height: 40, thickness: 10, holes: cornerHoles(40, 40, 4), components: [], connectors: [] } },
 ];
 export function defaultDesign(): Design {
-  return parseDesign({ schemaVersion: 1, units: 'mm', name: 'POS Café reference blueprint', screen: { width: 165, height: 105, activeWidth: 154, activeHeight: 86, thickness: 6 }, wall: 2.4, clearance: 0.3, depth: 50, tilt: 60, cableClearance: 12, bed: [220, 220, 250], modules: [
-    { ...structuredClone(BOARD_CATALOG[0].board), id: 'sbc', kind: 'board', position: [-41, 23.5, 30], rotation: 0 },
+  return parseDesign({ schemaVersion: 1, units: 'mm', name: 'POS Café reference blueprint', screen: { width: 164.9, height: 106.96, activeWidth: 154.21, activeHeight: 85.92, thickness: 8 }, wall: 2.4, clearance: 0.3, depth: 50, tilt: 60, cableClearance: 12, bed: [220, 220, 250], modules: [
+    { ...structuredClone(BOARD_CATALOG[0].board), id: 'sbc', kind: 'board', position: [-38, 23.5, 30], rotation: 0 },
     { ...structuredClone(BOARD_CATALOG[2].board), id: 'accessory', kind: 'board', position: [40, -30, 30], rotation: 0 },
     { ...structuredClone(BOARD_CATALOG[3].board), id: 'fan', kind: 'fan', position: [52, 29, 31], rotation: 0 },
   ], ports: [
@@ -79,6 +79,7 @@ export function replaceAccessory(d: Design, board: Board): Design {
   return parseDesign({ ...d, modules: [...d.modules.filter(m => m.id !== 'accessory'), next] });
 }
 const box = (size: Vec3, center: Vec3 = [0, 0, 0]) => primitives.cuboid({ size, center });
+const roundedBox = (size: Vec3, center: Vec3, radius = 6) => transforms.translate([center[0], center[1], center[2] - size[2] / 2], extrusions.extrudeLinear({ height: size[2] }, primitives.roundedRectangle({ size: [size[0], size[1]], roundRadius: Math.min(radius, size[0] / 4, size[1] / 4), segments: 24 })));
 const cylinder = (radius: number, height: number, center: Vec3) => primitives.cylinder({ radius, height, center, segments: 32 });
 const radians = (degrees: number) => degrees * Math.PI / 180;
 const modulePoint = (m: Module, local: Vec3): Vec3 => {
@@ -97,22 +98,24 @@ export function generateModel(input: Design): Model {
   const issues: ModelIssue[] = [], electronics: Electronic[] = [], cables: Cable[] = [], mountingPosts: Model['mountingPosts'] = [];
   const corners: Vec3[] = [[-w / 2 + 5, -h / 2 + 5, 0], [w / 2 - 5, -h / 2 + 5, 0], [-w / 2 + 5, h / 2 - 5, 0], [w / 2 - 5, h / 2 - 5, 0]];
   const screwHoles = (zPos: number, depth: number) => corners.map(([x, y]) => cylinder(1.6 + d.clearance / 2, depth, [x, y, zPos]));
-  let frame = booleans.subtract(box([w, h, wall], [0, 0, wall / 2]), box([d.screen.activeWidth + 2 * d.clearance, d.screen.activeHeight + 2 * d.clearance, wall + 2], [0, 0, wall / 2]), ...screwHoles(wall / 2, wall + 2));
+  let frame = booleans.subtract(roundedBox([w, h, wall], [0, 0, wall / 2]), box([d.screen.activeWidth + 2 * d.clearance, d.screen.activeHeight + 2 * d.clearance, wall + 2], [0, 0, wall / 2]), ...screwHoles(wall / 2, wall + 2));
   // Rear lip keeps the screen centered; its opening leaves the physical panel removable.
   const lipDepth = Math.min(2, d.screen.thickness), outerLipW = d.screen.width + 2 * d.clearance + 2 * wall, outerLipH = d.screen.height + 2 * d.clearance + 2 * wall;
   const lip = booleans.subtract(box([outerLipW, outerLipH, lipDepth], [0, 0, wall + lipDepth / 2]), box([d.screen.width + 2 * d.clearance, d.screen.height + 2 * d.clearance, lipDepth + 2], [0, 0, wall + lipDepth / 2]));
   frame = booleans.subtract(booleans.union(frame, lip), ...screwHoles((wall + lipDepth) / 2, wall + lipDepth + 2));
-  let body = booleans.subtract(box([w, h, d.depth - wall], [0, 0, (d.depth + wall) / 2]), box([w - 2 * wall, h - 2 * wall, d.depth + 2], [0, 0, d.depth / 2]));
+  let body = booleans.subtract(roundedBox([w, h, d.depth - wall], [0, 0, (d.depth + wall) / 2]), roundedBox([w - 2 * wall, h - 2 * wall, d.depth + 2], [0, 0, d.depth / 2], Math.max(1, 6 - wall)));
   const bossStart = wall + lipDepth + d.clearance;
   const bodyPosts = corners.map(([x, y]) => booleans.subtract(cylinder(1.4 + wall, d.depth - bossStart, [x, y, (d.depth + bossStart) / 2]), cylinder(1.4, d.depth + 2, [x, y, d.depth / 2])));
   body = booleans.union(body, ...bodyPosts);
+  const recessDepth = Math.min(1.3, wall / 2);
+  frame = booleans.subtract(frame, ...corners.map(([x, y]) => primitives.cylinderElliptic({ height: recessDepth + 0.02, startRadius: [3, 3], endRadius: [1.7, 1.7], center: [x, y, recessDepth / 2 - 0.01], segments: 32 })));
   const screenKeepout = box([d.screen.width + 2 * d.clearance, d.screen.height + 2 * d.clearance, d.screen.thickness + 2 * d.clearance], [0, 0, wall + d.screen.thickness / 2]);
   body = booleans.subtract(body, screenKeepout);
   const portCuts = d.ports.map(p => p.face === 'left' || p.face === 'right' ? box([wall * 3, p.width + 2 * d.clearance, p.height + 2 * d.clearance], [(p.face === 'left' ? -1 : 1) * w / 2, p.offset, p.z]) : box([p.width + 2 * d.clearance, wall * 3, p.height + 2 * d.clearance], [p.offset, (p.face === 'bottom' ? -1 : 1) * h / 2, p.z]));
   if (portCuts.length) body = booleans.subtract(body, ...portCuts);
   const vents: Geom3[] = [];
   for (let y = -h / 2 + 18; y <= h / 2 - 18; y += 10) vents.push(box([Math.min(w - 36, 100), 3, wall + 2], [0, y, d.depth + wall / 2]));
-  let lid = booleans.subtract(box([w, h, wall], [0, 0, d.depth + wall / 2]), ...vents, ...screwHoles(d.depth + wall / 2, wall + 2));
+  let lid = booleans.subtract(roundedBox([w, h, wall], [0, 0, d.depth + wall / 2]), ...vents, ...screwHoles(d.depth + wall / 2, wall + 2));
   electronics.push({ id: 'screen', name: 'จอ / screen', kind: 'screen', color: '#172c41', geometry: box([d.screen.width, d.screen.height, d.screen.thickness], [0, 0, wall + d.screen.thickness / 2]) });
   const moduleEnvelopes: { id: string; name: string; bounds: Bounds }[] = [];
   const inner: Bounds = [[-w / 2 + wall + d.clearance, -h / 2 + wall + d.clearance, wall + d.screen.thickness + d.clearance], [w / 2 - wall - d.clearance, h / 2 - wall - d.clearance, d.depth - d.clearance]];
@@ -166,22 +169,42 @@ export function generateModel(input: Design): Model {
   const netEndpoints = new Map<string, Vec3[]>();
   for (const c of cables) for (const p of c.pins) netEndpoints.set(p.net, [...(netEndpoints.get(p.net) ?? []), c.point]);
   for (const [net, points] of netEndpoints) for (let i = 1; i < points.length; i++) wires.push({ net, from: points[0], to: points[i] });
-  const baseWidth = Math.max(w + wall * 6, d.screen.activeWidth + wall * 8 + d.clearance * 2 + 6), standHeight = 42, run = standHeight / Math.tan(radians(d.tilt)), baseDepth = Math.max(80, 2 * (run / 2 + d.depth * Math.sin(radians(d.tilt)) + wall * 2));
-  const toeTop = wall * 3.5;
-  const cheek2d = primitives.polygon({ points: [[0, 0], [run, 0], [run, standHeight + toeTop - wall], [0, toeTop - wall]] });
-  const cheek = transforms.rotateX(Math.PI / 2, transforms.rotateY(Math.PI / 2, extrusions.extrudeLinear({ height: wall * 2 }, cheek2d)));
-  const cheeks = [-baseWidth / 2 + wall * 2, baseWidth / 2 - wall * 4].map(x => transforms.translate([x, -run / 2, wall], cheek));
-  const foot = box([baseWidth, baseDepth, wall], [0, 0, wall / 2]);
-  const toe = box([baseWidth, wall * 2, wall * 3], [0, -run / 2 - wall, wall * 2]);
-  const base = booleans.subtract(booleans.union(foot, ...cheeks, toe), ...[-baseWidth / 2 + 12, baseWidth / 2 - 12].flatMap(x => [-baseDepth / 2 + 10, baseDepth / 2 - 10].map(y => cylinder(2.1, wall + 2, [x, y, wall / 2]))));
+  const mountX = Math.min(40, w / 2 - 12), mountY = Math.min(25, h / 2 - 12);
+  const fastening = [-mountX, mountX].flatMap(x => [-mountY, mountY].map(y => [x, y, d.depth + wall / 2] as Vec3));
+  const rearStops: Geom3[] = [];
+  const screenBack = wall + d.screen.thickness + d.clearance;
+  for (const side of [-1, 1]) for (const y of [-d.screen.height / 2 + 8, d.screen.height / 2 - 8]) {
+    rearStops.push(box([3, 8, d.depth - screenBack + 0.05], [side * (d.screen.width / 2 + 2), y, (d.depth + screenBack) / 2 + 0.025]));
+    rearStops.push(box([7, 8, wall], [side * (d.screen.width / 2 - 0.5), y, screenBack + wall / 2]));
+  }
+  lid = booleans.union(lid, ...rearStops, ...fastening.map(([x, y]) => cylinder(6, wall * 3, [x, y, d.depth - wall / 2])));
+  const screwBores = fastening.map(([x, y]) => cylinder(1.7, wall * 5, [x, y, d.depth]));
+  const nutPockets = fastening.map(([x, y]) => primitives.cylinder({ radius: 3.3, height: wall + 0.2, center: [x, y, d.depth - wall * 2 + wall / 2 - 0.1], segments: 6 }));
+  const tieSlots = [-1, 1].flatMap(side => [-7, 7].map(y => box([3, 6, wall + 2], [side * (mountX + 12), y, d.depth + wall / 2])));
+  lid = booleans.subtract(lid, ...screwBores, ...nutPockets, ...tieSlots);
+  const assembly = { rotationX: radians(d.tilt), position: [0, 15, 18 + h / 2 * Math.sin(radians(d.tilt))] as Vec3 };
+  const assembled = (g: Geom3) => transforms.translate(assembly.position, transforms.rotateX(assembly.rotationX, g));
+  const plateThickness = wall * 2.5, plateZ = d.depth + wall + d.clearance + plateThickness / 2;
+  const backPlate = booleans.subtract(roundedBox([mountX * 2 + 18, mountY * 2 + 18, plateThickness], [0, 0, plateZ]), ...fastening.map(([x, y]) => cylinder(1.7, plateThickness + 2, [x, y, plateZ])));
+  const postY = 15 + ((wall * 2 - assembly.position[2]) * Math.cos(radians(d.tilt)) - plateZ) / Math.sin(radians(d.tilt)) - 14;
+  const baseWidth = Math.max(104, w - 4), baseDepth = Math.max(110, Math.abs(postY) + 32), baseCenterY = postY / 2;
+  const foot = roundedBox([baseWidth, baseDepth, wall * 2], [0, baseCenterY, wall], 10);
+  const post = modeling.hulls.hull(roundedBox([44, 20, wall * 2], [0, postY, wall]), assembled(box([44, wall * 2, wall * 2], [0, -mountY + 4, plateZ])));
+  const cableTunnel = transforms.rotateX(Math.PI / 2, cylinder(7, baseDepth + 20, [0, 0, 0]));
+  let base = booleans.union(foot, post, assembled(backPlate));
+  // Keep screw passages clear even where the pedestal spine joins the plate.
+  base = booleans.subtract(base, ...fastening.map(([x, y]) => assembled(cylinder(1.7, plateThickness + 20, [x, y, plateZ]))), transforms.translate([0, postY, wall * 2 + 14], cableTunnel), ...[-baseWidth / 2 + 12, baseWidth / 2 - 12].flatMap(x => [-baseDepth / 2 + 12, baseDepth / 2 - 12].map(y => cylinder(2.1, wall * 2 + 2, [x, y + baseCenterY, wall]))));
   const parts = ([['frame', frame], ['body', body], ['lid', lid], ['base', base]] as const).map(([name, geometry]): PrintPart => {
     const dimensions = measurements.measureDimensions(geometry) as Vec3;
     const fitsBed = dimensions[2] <= d.bed[2] && ((dimensions[0] <= d.bed[0] && dimensions[1] <= d.bed[1]) || (dimensions[1] <= d.bed[0] && dimensions[0] <= d.bed[1]));
     if (!fitsBed) issues.push({ kind: 'bed', message: `${name}: ${dimensions.map(n => n.toFixed(1)).join(' × ')} mm เกินเตียงพิมพ์` });
     return { name, geometry, dimensions, fitsBed };
   });
-  const assembly = { rotationX: radians(d.tilt), position: [0, -run / 2 + h / 2 * Math.cos(radians(d.tilt)), toeTop + d.clearance + h / 2 * Math.sin(radians(d.tilt))] as Vec3 };
   const solidOverlap = (a: Geom3, b: Geom3) => overlap(bounds(a), bounds(b)) && Math.abs(measurements.measureVolume(booleans.intersect(a, b))) > 0.001;
+  const caseParts = parts.filter(p => p.name !== 'base');
+  for (let i = 0; i < caseParts.length; i++) for (let j = i + 1; j < caseParts.length; j++) {
+    if (solidOverlap(caseParts[i].geometry, caseParts[j].geometry)) issues.push({ kind: 'collision', message: `${caseParts[i].name} ชนชิ้นพิมพ์ ${caseParts[j].name}: ปรับผนัง/ระยะเผื่อก่อนประกอบ` });
+  }
   for (const electronic of electronics) for (const part of parts.filter(p => p.name !== 'base')) if (solidOverlap(electronic.geometry, part.geometry)) issues.push({ kind: 'collision', message: `${electronic.name} ชนเนื้อพลาสติก ${part.name}` });
   for (const part of parts.filter(p => p.name !== 'base')) {
     const placed = transforms.translate(assembly.position, transforms.rotateX(assembly.rotationX, part.geometry));
@@ -209,13 +232,17 @@ export function exportPartStl(part: PrintPart): Uint8Array {
 export const BUILD_NOTES = `POS Café Maker — พิมพ์เขียวต้นแบบ
 
 STL เป็นชิ้นงานจริงที่สร้างจากตัวเลขใน design.json ไม่ใช่อุปกรณ์ที่ทดสอบประกอบแล้ว
-ค่าจอ SBC MCU พัดลม และช่องพอร์ตเริ่มต้นเป็นแม่แบบสมมติ ไม่ใช่สเปกสินค้ารุ่นใด
+ขนาดจอเริ่มต้นอ้างอิง Waveshare 7inch HDMI LCD (C): https://www.waveshare.com/wiki/7inch_HDMI_LCD_(C)
+ใช้พื้นที่แสดงผลกึ่งกลางเป็นสมมติฐาน ต้องวัดแนวกรอบ พอร์ตและส่วนที่ยึดได้ของโมดูลจริง
+ค่า SBC MCU พัดลม และช่องพอร์ตเป็นแม่แบบสมมติ ไม่ใช่สเปกสินค้ารุ่นใด
 PCB accessory มี sourceFile/sourceHash อ้างอิงแบบ KiCad; ขอบบอร์ด รู และ net มาจากแบบ ส่วน envelope เป็นพื้นที่เผื่อตามการออกแบบ ไม่ใช่การวัดชิ้นส่วนจริง
 หากแก้ขนาดในเว็บ sourceHash ยังคงอ้างอิง PCB ต้นทาง ไม่ยืนยันว่าค่าที่แก้ตรงกับ PCB
 วัดจอ บอร์ด รูยึด หัวปลั๊ก ขาอุปกรณ์ และระยะงอสายจริง แล้วบันทึก JSON ฉบับของคุณ
 เติม connector/pinout จาก datasheet ของอุปกรณ์ที่เลือกก่อนสร้างผังสาย ห้ามใช้ภาพ net แทนการตรวจวงจร
 ยังไม่ได้พิมพ์/ผลิต PCB/ประกอบ/ทดสอบโหลด ความร้อน กลับขั้ว หรือยืนยัน G-code ด้วย slicer
-ตรวจ STL ใน slicer ทดสอบชิ้นส่วนและวงจรจริงก่อนผลิตซ้ำหรือใช้ในร้าน
+ฐานด้านหลังขันยึดกับฝาด้วยสกรู M3 และน็อต 4 ชุด ลายรูเริ่มต้น80x50mm ตรวจความยาวสกรูไม่ให้ชนบอร์ด
+ฝามีตัวประคองขอบหลังจอ เว้นระยะตาม clearance ต้องวัดพื้นที่ที่กดได้และใช้วัสดุรองตามอุปกรณ์จริง ห้ามกดกระจกหรือ PCB โดยไม่ตรวจ
+ฐานแท่นด้านหลังและอุโมงค์สายอาจต้องใช้ support ตามแนวพิมพ์; ตรวจ STL ใน slicer ทดสอบชิ้นส่วนและวงจรจริงก่อนผลิตซ้ำหรือใช้ในร้าน
 คู่มือ: https://github.com/boombignose/pos-cafe-maker/blob/main/docs/BLUEPRINT.md
 `;
 export function exportDesignZip(design: Design): Uint8Array {
