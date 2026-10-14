@@ -5,13 +5,15 @@
 
 **เดโม POS ภาษาไทย · ออกแบบเคส 3D · วางอุปกรณ์และวงจร · ไฟล์ KiCad แก้ต่อได้**
 
-แจกแบบ CAD และ source ที่ใช้งานแก้ไขได้ พร้อม [ที่มาข้อมูลและใบบันทึกอุปกรณ์](docs/BLUEPRINT.md) ค่าเริ่มต้นของจอ/บอร์ดทั่วไป/พัดลมเป็นแม่แบบขนาดสมมติ ส่วนขอบบอร์ด รูและ net ของ PCB accessory มาจาก KiCad ใน repo ต้องแทนค่าด้วยอุปกรณ์จริงก่อนผลิต
+แจกแบบ CAD และ source ที่ใช้งานแก้ไขได้ พร้อม [ที่มาข้อมูลและใบบันทึกอุปกรณ์](docs/BLUEPRINT.md) ขนาดจอเริ่มต้นอ้างอิง Waveshare 7inch HDMI LCD (C) จากเอกสารผู้ผลิต บอร์ดทั่วไป/พัดลมเป็นแม่แบบขนาดสมมติ ส่วนขอบบอร์ด รูและ net ของ PCB accessory มาจาก KiCad ใน repo ต้องตรวจอุปกรณ์จริงก่อนผลิต
+
+รุ่น 0.1.2 เก็บมุมเคส ฐานเป็นแท่นรองด้านหลังขันยึดกับฝา มีตัวประคองขอบหลังจอและช่องรัดสาย หน้าขายใช้ปุ่มเมนูแบบข้อความและตะกร้าชำระเงินในพื้นที่จอ 1024×600 ดู [วิธีประกอบ](docs/PRINTING.md) แบบยังไม่ผ่านการประกอบจริง
 
 [![Check kit](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml)
 
 [เปิดเดโมออนไลน์](https://boombignose.github.io/pos-cafe-maker/) · [เริ่มใช้](#quick-start) · [ออกแบบและพิมพ์](docs/DESIGNER.md) · [วงจรและ PCB](docs/HARDWARE.md) · [ผลตรวจ](docs/TEST-REPORT.md)
 
-[ดาวน์โหลด Source ZIP](https://github.com/boombignose/pos-cafe-maker/archive/refs/heads/main.zip) · [ชุดไฟล์พร้อมลอง](https://github.com/boombignose/pos-cafe-maker/releases/tag/v0.1.1)
+[ดาวน์โหลด Source ZIP](https://github.com/boombignose/pos-cafe-maker/archive/refs/heads/main.zip) · [ชุดไฟล์พร้อมลอง](https://github.com/boombignose/pos-cafe-maker/releases/tag/v0.1.2)
 
 ![สตูดิโอออกแบบเคส POS](docs/evidence/designer.png)
 
@@ -44,7 +46,7 @@ npm run dev
 
 ### เดโมสำเร็จรูปจาก Release
 
-ดาวน์โหลดไฟล์ `pos-cafe-maker-demo-v0.1.1.zip` แตกไฟล์ แล้วรัน:
+ดาวน์โหลดไฟล์ `pos-cafe-maker-demo-v0.1.2.zip` แตกไฟล์ แล้วรัน:
 
 ```sh
 cd pos-cafe-maker-demo
@@ -55,7 +57,7 @@ python3 -m http.server 8080 --bind 127.0.0.1
 
 ## ลอง workflow ร้าน
 
-![หน้าขายภาษาไทย](docs/evidence/pos.png)
+![หน้าขายภาษาไทยบนจอ1024×600](docs/evidence/cashier-1024.png)
 
 หน้าขายเลือกหมวดและเมนู เพิ่มจำนวน เลือกขนาด/ชนิดนม คำนวณเงินทอน และพิมพ์ใบเสร็จตัวอย่าง58/80มม. การโอนใช้ checkbox **จำลองว่าพนักงานตรวจยอดแล้ว** ไม่มีการเชื่อมธนาคาร
 
@@ -68,7 +70,7 @@ python3 -m http.server 8080 --bind 127.0.0.1
 - จอและกล่องปรับเป็นมิลลิเมตร พรีวิวประกอบ/แยกชิ้น/โปร่งใส ใช้ geometry เดียวกับ STL
 - วางบอร์ดและพัดลม ปรับรูยึด ตำแหน่ง/มุมหมุนในระนาบ PCB ช่องพอร์ตและพื้นที่เผื่อสาย ตรวจเตียงพิมพ์และพื้นที่ชน
 - ส่งออก `frame.stl`, `body.stl`, `lid.stl`, `base.stl` และ `design.json` จอ บอร์ดและสายอ้างอิงไม่มีในไฟล์พิมพ์
-- [ไฟล์ตัวอย่าง](examples/models/) และ [คู่มือวัด/พิมพ์](docs/DESIGNER.md) ค่าเริ่มต้นจอ165×105×6มม. เป็นขนาดตัวอย่าง ไม่ได้ยืนยันว่าตรงสินค้ารุ่นใด
+- [ไฟล์ตัวอย่าง](examples/models/) และ [คู่มือวัด/พิมพ์](docs/DESIGNER.md) ค่าเริ่มต้นจอ164.90×106.96×8มม., active154.21×85.92มม. อ้างอิง [Waveshare 7inch HDMI LCD (C)](https://www.waveshare.com/wiki/7inch_HDMI_LCD_%28C%29) ยังต้องตรวจ revision พอร์ต แนว active area และพื้นที่กดล็อกของชิ้นจริง
 - [บอร์ด PCB เสริม](hardware/sources/) มี source KiCad10, สัญลักษณ์/footprint ใน repo, [BOM](hardware/BOM.csv), ผังสาย และ [ไฟล์ผลิต](hardware/manufacturing/) แบบยังเป็นต้นแบบ
 - ไฟDC5Vสำหรับพัดลม/LEDใช้บอร์ดเสริม คอมพิวเตอร์และจอใช้แหล่งจ่ายตามผู้ผลิตแยกกัน PCB นี้ไม่ใช่แหล่งจ่ายไฟ SBC และไม่ต่อไฟบ้าน
 - เมื่อแก้ PCB ใช้เครื่องมือ [ส่งกลับ manifest](docs/HARDWARE.md) นำ JSON เข้าเว็บแล้วปรับรูยึด/พื้นที่ชิ้นส่วนใหม่ `STEP` ที่แจกเป็นตัวบอร์ดและทองแดง ส่วนชิ้นส่วนในเว็บเป็น envelope สำหรับเผื่อพื้นที่
