@@ -1,0 +1,166 @@
+{
+  "units": "mm",
+  "prototype": true,
+  "physicalValidation": false,
+  "parts": [
+    {
+      "name": "frame",
+      "dimensions": [
+        181,
+        121,
+        4.4
+      ],
+      "fitsBed": true
+    },
+    {
+      "name": "body",
+      "dimensions": [
+        181,
+        121,
+        47.6
+      ],
+      "fitsBed": true
+    },
+    {
+      "name": "lid",
+      "dimensions": [
+        181,
+        121,
+        21.600000000000016
+      ],
+      "fitsBed": true
+    },
+    {
+      "name": "base",
+      "dimensions": [
+        130,
+        120.45125168440815,
+        50.4
+      ],
+      "fitsBed": true
+    }
+  ],
+  "mountingPosts": [
+    {
+      "moduleId": "sbc",
+      "position": [
+        -80,
+        -1,
+        30.8
+      ],
+      "diameter": 2.8,
+      "height": 19.2
+    },
+    {
+      "moduleId": "sbc",
+      "position": [
+        -22,
+        -1,
+        30.8
+      ],
+      "diameter": 2.8,
+      "height": 19.2
+    },
+    {
+      "moduleId": "sbc",
+      "position": [
+        -80,
+        48,
+        30.8
+      ],
+      "diameter": 2.8,
+      "height": 19.2
+    },
+    {
+      "moduleId": "sbc",
+      "position": [
+        -22,
+        48,
+        30.8
+      ],
+      "diameter": 2.8,
+      "height": 19.2
+    },
+    {
+      "moduleId": "accessory",
+      "position": [
+        4,
+        -9,
+        30.8
+      ],
+      "diameter": 3.2,
+      "height": 19.2
+    },
+    {
+      "moduleId": "accessory",
+      "position": [
+        76,
+        -9,
+        30.8
+      ],
+      "diameter": 3.2,
+      "height": 19.2
+    },
+    {
+      "moduleId": "accessory",
+      "position": [
+        4,
+        -51,
+        30.8
+      ],
+      "diameter": 3.2,
+      "height": 19.2
+    },
+    {
+      "moduleId": "accessory",
+      "position": [
+        76,
+        -51,
+        30.8
+      ],
+      "diameter": 3.2,
+      "height": 19.2
+    },
+    {
+      "moduleId": "fan",
+      "position": [
+        36,
+        13,
+        36
+      ],
+      "diameter": 2.8,
+      "height": 14
+    },
+    {
+      "moduleId": "fan",
+      "position": [
+        68,
+        13,
+        36
+      ],
+      "diameter": 2.8,
+      "height": 14
+    },
+    {
+      "moduleId": "fan",
+      "position": [
+        36,
+        45,
+        36
+      ],
+      "diameter": 2.8,
+      "height": 14
+    },
+    {
+      "moduleId": "fan",
+      "position": [
+        68,
+        45,
+        36
+      ],
+      "diameter": 2.8,
+      "height": 14
+    }
+  ],
+  "issues": []
+}

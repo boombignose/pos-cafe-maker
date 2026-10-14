@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-14",
+  "status": "blocked_before_slicer_startup",
+  "slicer": "PrusaSlicer 2.9.6 official stable macOS universal",
+  "releaseUrl": "https://github.com/prusa3d/PrusaSlicer/releases/tag/version_2.9.6",
+  "assetUrl": "https://github.com/prusa3d/PrusaSlicer/releases/download/version_2.9.6/PrusaSlicer-2.9.6.dmg",
+  "downloadBytes": 142444072,
+  "sha256": "94fd7b8a9f87c9631e1c71739b15b184fc5f4c0ceabd69072f1c78f229a4fe40",
+  "digestMatchedOfficialRelease": true,
+  "codesignDeepStrict": "passed",
+  "spctlAssessment": "accepted; source=Notarized Developer ID; Prusa Research a.s. (DKPB65N43Z)",
+  "platform": { "os": "macOS 26.4", "build": "25E246", "architecture": "arm64" },
+  "attempts": [
+    "Read-only mounted official app, CLI --help: no output, hung before app main",
+    "Native Computer Use app launch / inspection: timed out; no slicer window observed",
+    "App copied to task-owned temporary directory, CLI --help: same startup hang",
+    "Read-only signature assessment accepted; subsequent fresh CLI retry still hung",
+    "CLI --help with a real PTY: same startup hang"
+  ],
+  "startupSample": { "sampledSeconds": 1, "mainThreadSamples": 875, "stack": "_dyld_start + 0", "physicalFootprintKiB": 112 },
+  "stlFiles": ["frame.stl", "body.stl", "lid.stl", "base.stl"],
+  "stlImportedIntoSlicer": false,
+  "slicingCompleted": false,
+  "gcodeProduced": false,
+  "plannedBedMm": [220, 220, 250],
+  "profileInspection": "Bundled Creality Ender-3 0.4 mm profile is available; its shipped bed polygon is 3x3,228x3,228x228,3x228 (225x225), max height 250. A 220x220 bed override was planned, but no profile was executed because app startup remained blocked.",
+  "geometryChangedForThisAttempt": false,
+  "physicalPrintingValidated": false,
+  "cleanup": "Task-owned PrusaSlicer processes stopped; read-only DMG detached; downloaded app and image removed from task temporary directory. No global installation or security-setting changes."
+}

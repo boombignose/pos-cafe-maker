@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "units": "mm",
+  "name": "POS Café 7-inch prototype",
+  "screen": {
+    "width": 165,
+    "height": 105,
+    "activeWidth": 154,
+    "activeHeight": 86,
+    "thickness": 6
+  },
+  "wall": 2.4,
+  "clearance": 0.3,
+  "depth": 50,
+  "tilt": 60,
+  "cableClearance": 12,
+  "bed": [
+    220,
+    220,
+    250
+  ],
+  "modules": [
+    {
+      "name": "SBC / Raspberry Pi แบบอ้างอิง",
+      "width": 85,
+      "height": 56,
+      "thickness": 1.6,
+      "holes": [
+        {
+          "x": 3.5,
+          "y": 3.5,
+          "diameter": 2.8
+        },
+        {
+          "x": 61.5,
+          "y": 3.5,
+          "diameter": 2.8
+        },
+        {
+          "x": 3.5,
+          "y": 52.5,
+          "diameter": 2.8
+        },
+        {
+          "x": 61.5,
+          "y": 52.5,
+          "diameter": 2.8
+        }
+      ],
+      "components": [
+        {
+          "reference": "USB",
+          "name": "USB stack",
+          "x": 76.5,
+          "y": 25,
+          "width": 17,
+          "height": 20,
+          "depth": 16
+        },
+        {
+          "reference": "CPU",
+          "name": "CPU + heatsink envelope",
+          "x": 42,
+          "y": 27,
+          "width": 24,
+          "height": 24,
+          "depth": 12
+        }
+      ],
+      "connectors": [
+        {
+          "id": "gpio",
+          "name": "5V / GND / UART",
+          "x": 15,
+          "y": 51,
+          "z": 3,
+          "type": "GPIO",
+          "pins": [
+            {
+              "name": "2",
+              "net": "SBC_5V",
+              "voltage": 5
+            },
+            {
+              "name": "6",
+              "net": "SBC_GND",
+              "voltage": 0
+            },
+            {
+              "name": "8",
+              "net": "SBC_TX"
+            }
+          ]
+        }
+      ],
+      "id": "sbc",
+      "kind": "board",
+      "position": [
+        -41,
+        23.5,
+        30
+      ],
+      "rotation": 0
+    },
+    {
+      "name": "accessory",
+      "width": 80,
+      "height": 50,
+      "thickness": 1.6,
+      "holes": [
+        {
+          "x": 4,
+          "y": 46,
+          "diameter": 3.2
+        },
+        {
+          "x": 76,
+          "y": 46,
+          "diameter": 3.2
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "diameter": 3.2
+        },
+        {
+          "x": 76,
+          "y": 4,
+          "diameter": 3.2
+        }
+      ],
+      "components": [
+        {
+          "reference": "J1",
+          "name": "5V DC IN",
+          "x": 12,
+          "y": 25,
+          "width": 10,
+          "height": 8,
+          "depth": 12
+        },
+        {
+          "reference": "F1",
+          "name": "60R075XU",
+          "x": 27,
+          "y": 25,
+          "width": 10.2,
+          "height": 3.1,
+          "depth": 16.2
+        },
+        {
+          "reference": "D1",
+          "name": "1N5822-E3/54",
+          "x": 45,
+          "y": 25,
+          "width": 18.5,
+          "height": 5.5,
+          "depth": 6.5
+        },
+        {
+          "reference": "J2",
+          "name": "FAN DC OUT",
+          "x": 68,
+          "y": 25,
+          "width": 10,
+          "height": 8,
+          "depth": 12
+        },
+        {
+          "reference": "R1",
+          "name": "MFR-25FBF52-1K",
+          "x": 44,
+          "y": 38,
+          "width": 10.5,
+          "height": 3.3,
+          "depth": 4
+        },
+        {
+          "reference": "D2",
+          "name": "WP7113SGC",
+          "x": 58,
+          "y": 38,
+          "width": 5.3,
+          "height": 5.3,
+          "depth": 10
+        }
+      ],
+      "connectors": [
+        {
+          "id": "J1",
+          "name": "5V DC IN",
+          "x": 12,
+          "y": 25,
+          "z": 1.6,
+          "type": "screw-terminal",
+          "pins": [
+            {
+              "name": "1",
+              "net": "/5V_IN"
+            },
+            {
+              "name": "2",
+              "net": "/GND"
+            }
+          ]
+        },
+        {
+          "id": "J2",
+          "name": "FAN DC OUT",
+          "x": 68,
+          "y": 25,
+          "z": 1.6,
+          "type": "screw-terminal",
+          "pins": [
+            {
+              "name": "1",
+              "net": "/ACCESSORY_5V"
+            },
+            {
+              "name": "2",
+              "net": "/GND"
+            }
+          ]
+        }
+      ],
+      "id": "accessory",
+      "kind": "board",
+      "sourceHash": "20787188ea8834fed780d888193e0966ab1a4c75946fb398601456189aaac2b8",
+      "sourceFile": "accessory.kicad_pcb",
+      "position": [
+        40,
+        -30,
+        30
+      ],
+      "rotation": 0
+    },
+    {
+      "name": "Fan 40 mm",
+      "width": 40,
+      "height": 40,
+      "thickness": 10,
+      "holes": [
+        {
+          "x": 4,
+          "y": 4,
+          "diameter": 2.8
+        },
+        {
+          "x": 36,
+          "y": 4,
+          "diameter": 2.8
+        },
+        {
+          "x": 4,
+          "y": 36,
+          "diameter": 2.8
+        },
+        {
+          "x": 36,
+          "y": 36,
+          "diameter": 2.8
+        }
+      ],
+      "components": [],
+      "connectors": [
+        {
+          "id": "power",
+          "name": "Fan 5V / GND",
+          "x": 20,
+          "y": 20,
+          "z": 5,
+          "type": "2-pin fan lead",
+          "pins": [
+            {
+              "name": "+",
+              "net": "/ACCESSORY_5V",
+              "voltage": 5
+            },
+            {
+              "name": "-",
+              "net": "/GND",
+              "voltage": 0
+            }
+          ]
+        }
+      ],
+      "id": "fan",
+      "kind": "fan",
+      "position": [
+        52,
+        29,
+        31
+      ],
+      "rotation": 0
+    }
+  ],
+  "ports": [
+    {
+      "id": "usb",
+      "name": "USB / service",
+      "face": "right",
+      "offset": -4,
+      "z": 30,
+      "width": 18,
+      "height": 12
+    },
+    {
+      "id": "power",
+      "name": "5V power",
+      "face": "left",
+      "offset": -24,
+      "z": 28,
+      "width": 12,
+      "height": 9
+    }
+  ]
+}
