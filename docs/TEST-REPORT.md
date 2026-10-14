@@ -6,12 +6,14 @@
 |---|---|
 | TypeScript + Vite production build | ผ่าน `npm run build`; Designer lazy chunk ~806KB /224KB gzip; dependency Zod มี annotation warning ที่ไม่ทำให้ build fail |
 | Unit/geometry/demo/accounting | `npm test`: 32 PASS, 1 PostgreSQL integration SKIP เพราะไม่มี TEST_DATABASE_URL ในเครื่องนี้ |
-| Hardware manifest/metadata/stale checks | Python unittest 5 PASS และ `validate_export.py --check` ผ่าน |
+| Hardware manifest/metadata/stale checks | Python unittest 6 PASS และ `validate_export.py --check` ผ่าน; ไม่รวมไฟล์ตั้งค่ามุมมองชั่วคราว `.kicad_prl` ใน hash ของชุดแจก |
+| PostgreSQL integration บน GitHub Actions | 40/40 tests ผ่าน รวมการขายพร้อมกัน สต็อกไม่พอ ชำระซ้ำ สิทธิ์ สูตร คืนเงิน และกะ; [CI ที่ผ่านครบ](https://github.com/boombignose/pos-cafe-maker/actions/runs/38537299751) รวม build, hardware checks และ browser smoke |
 | KiCad10.0.7 schematic/PCB | ERC0, DRC0, unconnected0, schematic parity0, excluded violations0; [รายงานจริง](../hardware/reports/) |
 | Browser desktop/mobile | [browser-report.json](evidence/browser-report.json): เงินสด55/ทอน45, ลาเต้นมโอ๊ตโอนจำลอง80, คิวเริ่มทำ/พร้อมรับ/ส่งมอบ, รายงาน135/2บิล, WebGL, ปรับจอ, ดาวน์โหลด ZIP, ไม่มี pageerror |
 | STL และ assembly | [report.json](../examples/models/report.json): 4ชิ้น, bed fits, no default collisions; tests ตรวจผิวปิด two-manifold ที่0.001มม. และจอ/บอร์ดไม่ชนเคส รวมฐานใน assembled transform |
 | Slicer | PrusaSlicer2.9.6 จากผู้ผลิตตรวจ hash/signature ผ่าน แต่เริ่มค้างก่อน appmain บน macOS นี้ จึงยังไม่เปิด STL/slice; [รายงาน](../examples/models/slicer-validation.json) |
-| Fresh compiled-demo ZIP | แตกไฟล์ใหม่ เสิร์ฟด้วย Python static server แล้วรัน browser smoke ชุดเดียวกัน ผลตรวจอยู่ใน evidence |
+| Fresh compiled-demo ZIP | แตกไฟล์ใหม่ เสิร์ฟด้วย Python static server แล้วรัน browser smoke ชุดเดียวกันผ่าน |
+| เดโมออนไลน์ GitHub Pages | [เปิดเดโม](https://boombignose.github.io/pos-cafe-maker/) ผ่าน browser smoke ชุดเดียวกัน รวมขาย คิว รายงาน WebGL และดาวน์โหลด STL; ผลตรวจอยู่ใน evidence |
 
 ## ขอบเขตหลักฐาน
 
