@@ -1,3 +1,4 @@
+import {newId} from '../id';
 import { cartKey,validateChoices } from './logic';
 import type { Catalog,Order,User,Shift,Menu,Ingredient } from './api';
 const KEY='pos-cafe-maker-demo-v1';
@@ -53,7 +54,7 @@ export function createDemoStore(storage?:{getItem(k:string):string|null;setItem(
    if(body.paymentMethod==='transfer'&&!body.transferConfirmed)throw new Error('ตรวจและยืนยันยอดโอนก่อน');
    if(body.paymentMethod==='transfer'&&tendered!==total)throw new Error('ยอดโอนไม่ตรงกับยอดบิล');
    for(const [ingredient,amount] of Object.entries(recipe)){const row=state.ingredients.find(i=>i.id===ingredient);if(!row||units(row.stock)<amount)throw new Error(`วัตถุดิบไม่พอ: ${row?.name??ingredient}`);row.stock=String((units(row.stock)-amount)/1000);}
-   const order:SavedOrder={id:crypto.randomUUID(),queueNumber:state.orders.filter(o=>o.day===day()).length+1,status:'queued',totalSatang:total,changeSatang:body.paymentMethod==='cash'?tendered-total:0,paymentMethod:body.paymentMethod,createdAt:new Date().toISOString(),items,recipe,day:day(),shiftId:state.shift.id};
+   const order:SavedOrder={id:newId(),queueNumber:state.orders.filter(o=>o.day===day()).length+1,status:'queued',totalSatang:total,changeSatang:body.paymentMethod==='cash'?tendered-total:0,paymentMethod:body.paymentMethod,createdAt:new Date().toISOString(),items,recipe,day:day(),shiftId:state.shift.id};
    state.orders.push(order);if(order.paymentMethod==='cash')state.shift.expectedCashSatang+=total;
    state.replays[body.idempotencyKey]={body:bodyText,order:clone(order)};result=order;
   }else if(pathname==='/orders'&&method==='GET')return state.orders.filter(o=>o.day===day()||['queued','preparing','ready'].includes(o.status));
@@ -70,7 +71,7 @@ export function createDemoStore(storage?:{getItem(k:string):string|null;setItem(
    if(order.paymentMethod==='cash'&&originatingShift){originatingShift.expectedCashSatang-=order.totalSatang;if(originatingShift.countedCashSatang!==undefined)originatingShift.differenceSatang=originatingShift.countedCashSatang-originatingShift.expectedCashSatang;}
    Object.assign(order,{status:'refunded',refundReason:body.reason,refundedAt:new Date().toISOString(),refundDay:day(),refundKey:body.idempotencyKey,refundBody});result=order;
   }else if(pathname==='/shift')return state.shift;
-  else if(pathname==='/shifts/open'){guard(['owner','cashier']);if(state.shift)throw new Error('มีกะเปิดอยู่แล้ว');const opening=number(body.openingCashSatang);state.shift={id:crypto.randomUUID(),openingCashSatang:opening,expectedCashSatang:opening};result=state.shift;}
+  else if(pathname==='/shifts/open'){guard(['owner','cashier']);if(state.shift)throw new Error('มีกะเปิดอยู่แล้ว');const opening=number(body.openingCashSatang);state.shift={id:newId(),openingCashSatang:opening,expectedCashSatang:opening};result=state.shift;}
   else if(pathname.startsWith('/shifts/')&&pathname.endsWith('/close')){guard(['owner','cashier']);if(state.shift?.id!==id)throw new Error('ไม่พบกะ');const counted=number(body.countedCashSatang);result={...state.shift,countedCashSatang:counted,differenceSatang:counted-state.shift.expectedCashSatang};state.closedShifts.push(result);state.shift=null;}
   else if(pathname==='/reports'){
    guard(['owner']);const date=new URLSearchParams(path.split('?')[1]).get('date')??day();const orders=state.orders.filter(o=>o.day===date),paid=orders.filter(o=>o.status!=='refunded'),refunds=state.orders.filter(o=>o.refundDay===date);const refundTotal=refunds.reduce((n,o)=>n+o.totalSatang,0);
@@ -78,13 +79,13 @@ export function createDemoStore(storage?:{getItem(k:string):string|null;setItem(
    return{totalSatang:orders.reduce((n,o)=>n+o.totalSatang,0)-refundTotal,cashSatang:orders.filter(o=>o.paymentMethod==='cash').reduce((n,o)=>n+o.totalSatang,0)-refunds.filter(o=>o.paymentMethod==='cash').reduce((n,o)=>n+o.totalSatang,0),transferSatang:orders.filter(o=>o.paymentMethod==='transfer').reduce((n,o)=>n+o.totalSatang,0)-refunds.filter(o=>o.paymentMethod==='transfer').reduce((n,o)=>n+o.totalSatang,0),refundSatang:refundTotal,orderCount:orders.length,bestSellers:Object.values(best).sort((a,b)=>b.quantity-a.quantity),lowStock:state.ingredients.filter(i=>units(i.stock)<=units(i.lowStock))};
   }else if(pathname==='/stock'){guard(['owner']);const row=state.ingredients.find(i=>i.id===body.ingredientId);if(!row||!body.reason?.trim())throw new Error('เลือกวัตถุดิบและระบุเหตุผล');const amount=units(body.quantity),remaining=units(row.stock)+amount;if(remaining<0)throw new Error('ยอดคงเหลือติดลบ');row.stock=String(remaining/1000);state.stockLog.push({...body,createdAt:new Date().toISOString()});result=row;}
   else if(pathname==='/users'&&method==='GET'){guard(['owner']);return state.users;}
-  else if(pathname==='/users'){guard(['owner']);if(!body.username?.trim()||!['owner','cashier','bar'].includes(body.role)||state.users.some(u=>u.username===body.username))throw new Error('ชื่อผู้ใช้หรือสิทธิ์ไม่ถูกต้อง');result={id:crypto.randomUUID(),username:body.username,role:body.role};state.users.push(result);}
+  else if(pathname==='/users'){guard(['owner']);if(!body.username?.trim()||!['owner','cashier','bar'].includes(body.role)||state.users.some(u=>u.username===body.username))throw new Error('ชื่อผู้ใช้หรือสิทธิ์ไม่ถูกต้อง');result={id:newId(),username:body.username,role:body.role};state.users.push(result);}
   else if(pathname.startsWith('/users/')){guard(['owner']);const row=state.users.find(u=>u.id===id);if(!row)throw new Error('ไม่พบผู้ใช้');if(body.role&&!['owner','cashier','bar'].includes(body.role))throw new Error('สิทธิ์ไม่ถูกต้อง');Object.assign(row,body.role?{role:body.role}:{});result=row;}
-  else if(pathname==='/ingredients'){guard(['owner']);if(!body.name?.trim()||!body.unit?.trim()||units(body.lowStock)<0)throw new Error('กรอกชื่อ หน่วย และขั้นต่ำ');result={id:crypto.randomUUID(),...body,stock:'0'};state.ingredients.push(result);}
+  else if(pathname==='/ingredients'){guard(['owner']);if(!body.name?.trim()||!body.unit?.trim()||units(body.lowStock)<0)throw new Error('กรอกชื่อ หน่วย และขั้นต่ำ');result={id:newId(),...body,stock:'0'};state.ingredients.push(result);}
   else if(pathname.startsWith('/ingredients/')){guard(['owner']);const row=state.ingredients.find(i=>i.id===id);if(!row)throw new Error('ไม่พบวัตถุดิบ');if(body.lowStock!==undefined&&units(body.lowStock)<0)throw new Error('ขั้นต่ำติดลบ');Object.assign(row,body);result=row;}
   else if(pathname==='/menus'||pathname.startsWith('/menus/')){guard(['owner']);if(!body.name?.trim()||!body.category?.trim())throw new Error('กรอกชื่อเมนูและหมวด');number(body.priceSatang);
    for(const r of [...(body.recipe??[]),...(body.options??[]).flatMap((o:any)=>o.recipe??[])]){if(!state.ingredients.some(i=>i.id===r.ingredientId))throw new Error('วัตถุดิบไม่อยู่ในรายการ');units(String(r.quantity));}
-   const row=state.menus.find(m=>m.id===id);if(method==='PATCH'&&!row)throw new Error('ไม่พบเมนู');result={...body,id:row?.id??crypto.randomUUID()};if(row)Object.assign(row,result);else state.menus.push(result);
+   const row=state.menus.find(m=>m.id===id);if(method==='PATCH'&&!row)throw new Error('ไม่พบเมนู');result={...body,id:row?.id??newId()};if(row)Object.assign(row,result);else state.menus.push(result);
   }else if(pathname==='/seed-demo'){guard(['owner']);throw new Error('เดโมมีข้อมูลตัวอย่างแล้ว');}
   else throw new Error('ไม่พบรายการที่ร้องขอ');
   save(state);return clone(result);

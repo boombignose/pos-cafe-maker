@@ -1,0 +1,4 @@
+import {money,type Order,demoMode} from './api';
+export default function Receipt({order,paper}:{order:Order;paper?:string}){
+ return <div className="receipt" style={{width:`${paper??order.shop?.paper??'80'}mm`}}><h2>{order.shop?.name??'POS Café Maker'}</h2>{order.shop?.address&&<p>{order.shop.address}</p>}{order.shop?.phone&&<p>โทร. {order.shop.phone}</p>}<p>{demoMode?'ใบเสร็จตัวอย่าง':'ใบเสร็จรับเงิน'}</p><h3>คิว {order.queueNumber}{order.status==='refunded'?' · คืนเงินแล้ว':''}</h3><small>บิล {order.id}</small><p>{new Date(order.createdAt).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})}</p>{order.items.map((i,n)=><p key={n}>{i.name} × {i.quantity} <span>{money(i.unitPriceSatang*i.quantity)}</span><small>{i.options.join(' / ')}</small></p>)}<hr/><p>รวม {money(order.totalSatang)}</p><p>{order.paymentMethod==='cash'?'เงินสด':'โอนเงิน'} · เงินทอน {money(order.changeSatang)}</p><small>{demoMode?'ใบเสร็จตัวอย่าง ':''}ไม่ใช่ใบกำกับภาษี</small></div>;
+}
