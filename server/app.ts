@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { transaction } from './db.js';
 import { ApiError, requireCondition, passwordSchema, usernameSchema, roleSchema, nameSchema, decimalSchema, moneySchema, menuSchema, checkoutSchema, hashPassword, verifyPassword, digest, csvCell } from './domain.js';
 import { catalog, menu, ingredient, shift, order, checkout, refund, report, validateMenu } from './pos.js';
+import {shopSchema,settings,saveSettings} from './shop.js';
 
 const publicUser=(row:any)=>({id:row.id,username:row.username,role:row.role,active:row.active});
 const cookieName='pos_session';
@@ -13,7 +14,7 @@ const userUpdate=z.object({password:passwordSchema.optional(),role:roleSchema.op
 const ingredientInput=z.object({name:nameSchema,unit:nameSchema,lowStock:decimalSchema}).strict();
 const refundInput=z.object({reason:nameSchema,idempotencyKey:z.string().min(8).max(128)}).strict();
 
-export function createApp(pool:Pool) {
+export function createApp(pool:Pool,options:{setupToken?:string;storeEpoch?:string;operations?:{status:()=>Promise<unknown>;backup:()=>Promise<unknown>}}={}) {
   const app=express();
   app.disable('x-powered-by');
   app.use((_req,res,next)=>{res.set({'X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'same-origin'}); next();});
@@ -47,7 +48,32 @@ export function createApp(pool:Pool) {
   const owner=allowed('owner'),sales=allowed('owner','cashier'),all=allowed('owner','cashier','bar');
   app.get('/api/session',async (_req,res)=>{
     const csrfToken=res.locals.session?.csrf_token || await newSession(res,null);
-    res.json({user:res.locals.user || null,csrfToken});
+    const setupRequired=!(await pool.query('SELECT 1 FROM users LIMIT 1')).rowCount;
+    res.json({user:res.locals.user || null,csrfToken,setupRequired,storeEpoch:options.storeEpoch??'external'});
+  });
+  app.post('/api/setup',async(req,res)=>{
+    const input=z.object({token:z.string().max(256),username:usernameSchema,password:passwordSchema,shop:shopSchema}).strict().parse(req.body);
+    await transaction(pool,async client=>{
+      await client.query("SELECT pg_advisory_xact_lock(hashtextextended(current_schema() || ':users',0))");
+      requireCondition(!(await client.query('SELECT 1 FROM users LIMIT 1')).rowCount,409,'SETUP_COMPLETE','ร้านตั้งค่าแล้ว กรุณาเข้าสู่ระบบ');
+      requireCondition(options.setupToken&&timingSafeEqual(Buffer.from(digest(input.token)),Buffer.from(digest(options.setupToken))),403,'INVALID_SETUP_TOKEN','รหัสตั้งร้านไม่ถูกต้อง ดูไฟล์ SETUP-TOKEN.txt ในเครื่องร้าน');
+      await client.query("INSERT INTO users(id,username,password_hash,role) VALUES($1,$2,$3,'owner')",[randomUUID(),input.username,await hashPassword(input.password)]);
+      await saveSettings(client,input.shop);
+    });
+    res.status(201).json({ok:true});
+  });
+  app.get('/api/settings',all,async(_req,res)=>{res.json(await settings(pool));});
+  app.put('/api/settings',owner,async(req,res)=>{res.json(await saveSettings(pool,shopSchema.parse(req.body)));});
+  app.get('/api/operations',owner,async(_req,res)=>{res.json(options.operations?await options.operations.status():{managed:false});});
+  app.post('/api/backup',owner,async(_req,res)=>{
+    requireCondition(options.operations,503,'OPERATIONS_UNAVAILABLE','ใช้ชุดระบบร้านเพื่อสำรองข้อมูลผ่านหน้าเว็บ');
+    const backup=await options.operations.backup();res.json(backup);
+  });
+  app.post('/api/recovery/ack',owner,async(req,res)=>{
+    const input=z.object({checkoutKey:z.string().uuid(),sourceEpoch:z.string().min(1).max(128),reason:nameSchema}).strict().parse(req.body);
+    requireCondition(options.storeEpoch&&input.sourceEpoch!==options.storeEpoch,409,'RECOVERY_NOT_REQUIRED','รายการนี้ต้องตรวจผลชำระเดิมก่อน ไม่ใช่รายการจากฐานข้อมูลที่กู้คืน');
+    await pool.query('INSERT INTO recovery_acknowledgements(id,user_id,checkout_key,source_epoch,reason) VALUES($1,$2,$3,$4,$5)',[randomUUID(),res.locals.user.id,input.checkoutKey,input.sourceEpoch,input.reason]);
+    res.json({ok:true});
   });
   app.post('/api/login',async (req,res)=>{
     const input=z.object({username:usernameSchema,password:z.string().min(1).max(128)}).strict().parse(req.body);
@@ -141,9 +167,13 @@ export function createApp(pool:Pool) {
     });
     res.json(menu(row));
   });
-  app.post('/api/checkout',sales,async (req,res)=>{res.json(await checkout(pool,res.locals.user,checkoutSchema.parse(req.body)));});
-  app.get('/api/orders',all,async (_req,res)=>{
-    const rows=await pool.query("SELECT * FROM orders WHERE day=(now() AT TIME ZONE 'Asia/Bangkok')::date OR status IN ('queued','preparing','ready') ORDER BY created_at DESC");
+  app.post('/api/checkout',sales,async (req,res)=>{
+    requireCondition(!options.storeEpoch||req.get('x-pos-epoch')===options.storeEpoch,409,'STORE_RESTORED','ฐานข้อมูลเปลี่ยนหลังการกู้คืน ให้เจ้าของตรวจรายการค้างก่อนขายต่อ');
+    res.json(await checkout(pool,res.locals.user,checkoutSchema.parse(req.body)));
+  });
+  app.get('/api/orders',all,async (req,res)=>{
+    const date=req.query.date===undefined?undefined:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).parse(req.query.date);
+    const rows=date?await pool.query('SELECT * FROM orders WHERE day=$1::date ORDER BY created_at DESC',[date]):await pool.query("SELECT * FROM orders WHERE day=(now() AT TIME ZONE 'Asia/Bangkok')::date OR status IN ('queued','preparing','ready') ORDER BY created_at DESC");
     res.json(rows.rows.map(order));
   });
   app.patch('/api/orders/:id/status',all,async (req,res)=>{
