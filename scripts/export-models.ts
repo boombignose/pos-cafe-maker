@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { defaultDesign, exportDesignZip, exportPartStl, generateModel, parseBoardManifest, parseDesign, replaceAccessory } from '../src/designer/model.js';
+import { BUILD_NOTES, defaultDesign, exportDesignZip, exportPartStl, generateModel, parseBoardManifest, parseDesign, replaceAccessory } from '../src/designer/model.js';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -19,6 +19,7 @@ async function main() {
   for (const part of model.parts) await writeFile(path.join(output, `${part.name}.stl`), exportPartStl(part));
   await writeFile(path.join(output, 'design.json'), JSON.stringify(design, null, 2) + '\n');
   await writeFile(path.join(output, 'pos-cafe-models.zip'), exportDesignZip(design));
+  await writeFile(path.join(output, 'BUILD-NOTES.txt'), BUILD_NOTES);
   const report = { units: 'mm', prototype: true, physicalValidation: false, parts: model.parts.map(({ name, dimensions, fitsBed }) => ({ name, dimensions, fitsBed })), mountingPosts: model.mountingPosts, issues: model.issues };
   await writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   console.log(`Generated 4 binary STL files, design.json, ZIP and report.json in ${output}`);

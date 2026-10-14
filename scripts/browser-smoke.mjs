@@ -28,7 +28,7 @@ try{
  await page.getByLabel('บทบาทเดโม').selectOption('owner');await page.getByRole('button',{name:'ส่งมอบแล้ว',exact:true}).first().click();steps.push('bar preparing/ready + owner delivered');
  await page.getByRole('link',{name:/จัดการร้าน/}).click();await page.getByRole('heading',{name:'ดูแลร้านให้พร้อมเสมอ'}).waitFor();
  await page.getByRole('heading',{name:'฿135.00',exact:true}).waitFor();await page.screenshot({path:'docs/evidence/admin.png',fullPage:true});steps.push('persisted reports net135 THB /2 sales');
- await page.getByRole('link',{name:/ออกแบบเครื่อง/}).first().click();await page.getByRole('heading',{name:'กล่องที่พอดีกับเครื่องคุณ'}).waitFor();
+ await page.getByRole('link',{name:/ออกแบบเครื่อง/}).first().click();await page.getByRole('heading',{name:'พิมพ์เขียวเครื่องของคุณ'}).waitFor();
  await page.locator('canvas').waitFor();await page.getByRole('button',{name:'ประกอบ',exact:true}).click();
  await page.screenshot({path:'docs/evidence/designer.png',fullPage:true});
  await page.getByRole('button',{name:'แยกชิ้น',exact:true}).click();await page.screenshot({path:'docs/evidence/exploded.png',fullPage:true});
