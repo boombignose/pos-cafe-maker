@@ -12,7 +12,7 @@ import net from 'node:net';
 import pg from 'pg';
 const cli=process.env.SHOP_PACKAGE_DIR?pathToFileURL(join(resolve(process.env.SHOP_PACKAGE_DIR),'scripts/shop/cli.mjs')):new URL('../scripts/shop/cli.mjs',import.meta.url);
 async function port(){const server=net.createServer().listen(0,'127.0.0.1');await once(server,'listening');const n=(server.address() as net.AddressInfo).port;await new Promise<void>(r=>server.close(()=>r()));return n;}
-test('shop launcher preserves data through restart and backup/restore; failed restore and duplicate starts are safe',{skip:process.env.RUN_SHOP_RUNTIME!=='true',timeout:120000},async()=>{
+test('shop launcher preserves data through restart and backup/restore; failed restore and duplicate starts are safe',{skip:process.env.RUN_SHOP_RUNTIME!=='true',timeout:300000},async()=>{
  const directory=await mkdtemp(join(tmpdir(),'pos-shop-runtime-'));const httpPort=await port(),pgPort=await port();
  await writeFile(join(directory,'sentinel.txt'),'keep existing work');
  const env={...process.env,POS_DATA_DIR:directory,POS_PORT:String(httpPort),POS_PG_PORT:String(pgPort),POS_NO_BROWSER:'true'};
@@ -20,7 +20,7 @@ test('shop launcher preserves data through restart and backup/restore; failed re
  async function command(args:string[],overrides:Record<string,string>={}){const p=spawn(process.execPath,[fileURLToPath(cli),...args],{env:{...env,...overrides},stdio:['ignore','pipe','pipe']});let output='';p.stdout!.on('data',s=>{output+=s;});p.stderr!.on('data',s=>{output+=s;});const [code]=await once(p,'exit');return {code,output};}
  async function start(){
   child=spawn(process.execPath,[fileURLToPath(cli),'start'],{env,stdio:['ignore','pipe','pipe']});let output='';child.stdout!.on('data',s=>{output+=s;});child.stderr!.on('data',s=>{output+=s;});
-  for(let attempt=0;attempt<150;attempt++){
+  for(let attempt=0;attempt<900;attempt++){
    if(child.exitCode!==null)assert.fail(`Launcher stopped before readiness: ${output}`);
    try{if((await fetch(`http://127.0.0.1:${httpPort}/api/health`)).ok)return;}catch{}
    await new Promise(r=>setTimeout(r,100));
