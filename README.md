@@ -1,15 +1,17 @@
 <div align="center">
 
 # POS Café Maker
-## ออกแบบเครื่องเอง ลองขายเอง แล้วพิมพ์เคสไปประกอบต่อ
+## พิมพ์เขียวเครื่อง POS สำหรับวัด ปรับ และนำไปสร้างต่อ
 
 **เดโม POS ภาษาไทย · ออกแบบเคส 3D · วางอุปกรณ์และวงจร · ไฟล์ KiCad แก้ต่อได้**
+
+แจกแบบ CAD และ source ที่ใช้งานแก้ไขได้ พร้อม [ที่มาข้อมูลและใบบันทึกอุปกรณ์](docs/BLUEPRINT.md) ค่าเริ่มต้นของจอ/บอร์ดทั่วไป/พัดลมเป็นแม่แบบขนาดสมมติ ส่วนขอบบอร์ด รูและ net ของ PCB accessory มาจาก KiCad ใน repo ต้องแทนค่าด้วยอุปกรณ์จริงก่อนผลิต
 
 [![Check kit](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml/badge.svg)](https://github.com/boombignose/pos-cafe-maker/actions/workflows/ci.yml)
 
 [เปิดเดโมออนไลน์](https://boombignose.github.io/pos-cafe-maker/) · [เริ่มใช้](#quick-start) · [ออกแบบและพิมพ์](docs/DESIGNER.md) · [วงจรและ PCB](docs/HARDWARE.md) · [ผลตรวจ](docs/TEST-REPORT.md)
 
-[ดาวน์โหลด Source ZIP](https://github.com/boombignose/pos-cafe-maker/archive/refs/heads/main.zip) · [ชุดไฟล์พร้อมลอง](https://github.com/boombignose/pos-cafe-maker/releases)
+[ดาวน์โหลด Source ZIP](https://github.com/boombignose/pos-cafe-maker/archive/refs/heads/main.zip) · [ชุดไฟล์พร้อมลอง](https://github.com/boombignose/pos-cafe-maker/releases/tag/v0.1.1)
 
 ![สตูดิโอออกแบบเคส POS](docs/evidence/designer.png)
 
@@ -42,7 +44,7 @@ npm run dev
 
 ### เดโมสำเร็จรูปจาก Release
 
-ดาวน์โหลดไฟล์ `pos-cafe-maker-demo-v0.1.0.zip` แตกไฟล์ แล้วรัน:
+ดาวน์โหลดไฟล์ `pos-cafe-maker-demo-v0.1.1.zip` แตกไฟล์ แล้วรัน:
 
 ```sh
 cd pos-cafe-maker-demo
