@@ -19,7 +19,7 @@ Physical prints, assembled hardware thermal/load tests and manufactured PCB are 
 
 ## Current evidence
 - Web/demo: build and fresh ZIP browser smoke PASS.
-- TypeScript tests:30 PASS,1 optional PostgreSQL SKIP locally; Python hardware tests:5 PASS.
+- TypeScript tests:32 PASS,1 optional PostgreSQL SKIP locally; Python hardware tests:5 PASS.
 - Default CAD:closed meshes at0.001mm and no solid default collisions; physical fit unverified.
 - KiCad10.0.7:ERC/DRC/parity/unconnected/exclusions0; hashes current.
 - Slicer:official Prusa2.9.6 verified but fails to start on this Mac; no slicing claim.

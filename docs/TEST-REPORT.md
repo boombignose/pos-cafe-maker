@@ -5,7 +5,7 @@
 | การตรวจ | หลักฐาน / ผล |
 |---|---|
 | TypeScript + Vite production build | ผ่าน `npm run build`; Designer lazy chunk ~806KB /224KB gzip; dependency Zod มี annotation warning ที่ไม่ทำให้ build fail |
-| Unit/geometry/demo/accounting | `npm test`: 30 PASS, 1 PostgreSQL integration SKIP เพราะไม่มี TEST_DATABASE_URL ในเครื่องนี้ |
+| Unit/geometry/demo/accounting | `npm test`: 32 PASS, 1 PostgreSQL integration SKIP เพราะไม่มี TEST_DATABASE_URL ในเครื่องนี้ |
 | Hardware manifest/metadata/stale checks | Python unittest 5 PASS และ `validate_export.py --check` ผ่าน |
 | KiCad10.0.7 schematic/PCB | ERC0, DRC0, unconnected0, schematic parity0, excluded violations0; [รายงานจริง](../hardware/reports/) |
 | Browser desktop/mobile | [browser-report.json](evidence/browser-report.json): เงินสด55/ทอน45, ลาเต้นมโอ๊ตโอนจำลอง80, คิวเริ่มทำ/พร้อมรับ/ส่งมอบ, รายงาน135/2บิล, WebGL, ปรับจอ, ดาวน์โหลด ZIP, ไม่มี pageerror |
