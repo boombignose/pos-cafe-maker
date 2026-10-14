@@ -5,6 +5,7 @@ import {homedir,networkInterfaces} from 'node:os';
 import {randomBytes,createHash} from 'node:crypto';
 import {execFile,spawn} from 'node:child_process';
 import {promisify} from 'node:util';
+import {once} from 'node:events';
 import pg from 'pg';
 const exec=promisify(execFile);
 const executable=name=>name+(process.platform==='win32'?'.exe':'');
@@ -62,7 +63,14 @@ export async function loadConfig(directory){
 }
 export function connection(cfg,admin=false,database=cfg.database){return {host:'127.0.0.1',port:cfg.pgPort,database:admin?'postgres':database,user:admin?cfg.adminUser:cfg.user,password:admin?cfg.adminPassword:cfg.password};}
 async function tool(bin,name,args,cfg,admin=false){
- return exec(join(bin,executable(name)),args,{windowsHide:true,timeout:120000,maxBuffer:4*1024*1024,env:{...process.env,PGPASSWORD:admin?cfg.adminPassword:cfg.password,PGCONNECT_TIMEOUT:'10'}});
+ const options={windowsHide:true,timeout:120000,env:{...process.env,PGPASSWORD:admin?cfg.adminPassword:cfg.password,PGCONNECT_TIMEOUT:'10'}};
+ if(name==='pg_ctl'){
+  // PostgreSQL can inherit Windows pipes; wait for pg_ctl exit, not the server's stream closure.
+  const child=spawn(join(bin,executable(name)),args,{...options,stdio:'ignore'});const [code,signal]=await once(child,'exit');
+  if(code!==0)throw new Error(`pg_ctl failed (${code??signal}); check postgres.log in the POS data folder`);
+  return;
+ }
+ return exec(join(bin,executable(name)),args,{...options,maxBuffer:4*1024*1024});
 }
 const dbArgs=cfg=>['--host=127.0.0.1',`--port=${cfg.pgPort}`,`--username=${cfg.user}`];
 export async function startCluster(directory,cfg,bin){
