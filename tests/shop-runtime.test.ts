@@ -6,7 +6,7 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdtemp,readFile,writeFile,readdir,rm,mkdir,symlink,chmod} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {basename,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import net from 'node:net';
 import pg from 'pg';
@@ -38,9 +38,10 @@ test('shop launcher preserves data through restart and backup/restore; failed re
   await api('/login','POST',{username:'runtimeowner',password:'RuntimeTestOnly!2026'});
   const menu=await api('/menus','POST',{name:'ขนมทดสอบ',category:'ขนม',priceSatang:3500,active:true,recipe:[],options:[]});
   await api('/shifts/open','POST',{openingCashSatang:10000});
+  // An earlier scheduled backup may exist; recovery must use the new post-sale snapshot.
+  await api('/backup','POST',{});
   const order=await api('/checkout','POST',{items:[{menuId:menu.id,quantity:1,optionIds:[]}],paymentMethod:'cash',amountTenderedSatang:5000,transferConfirmed:false,idempotencyKey:'runtime-original-sale'});
   const duplicate=await command(['start']);assert.notEqual(duplicate.code,0);assert.match(duplicate.output,/already running/i);
-  let expectedBackups=1;
   if(process.platform!=='win32'&&process.env.SKIP_BACKUP_RACE!=='true'){
    await stop();const bin=join(directory,'slow-bin');await mkdir(bin);
    const {postgresBin}=await import('../scripts/shop/runtime.mjs');const realBin=await postgresBin();
@@ -50,11 +51,11 @@ test('shop launcher preserves data through restart and backup/restore; failed re
    const backing=command(['backup'],{POS_PG_BIN:bin});
    for(let i=0;i<100;i++){try{await readFile(marker);break;}catch{await new Promise(r=>setTimeout(r,50));}}
    await start();const finished=await backing;assert.equal(finished.code,0,finished.output);
-   assert.equal((await fetch(origin+'/api/health')).status,200,'Offline backup must not stop a newly started shop');expectedBackups=2;
+   assert.equal((await fetch(origin+'/api/health')).status,200,'Offline backup must not stop a newly started shop');
   }
   const backed=await command(['backup']);assert.equal(backed.code,0,backed.output);
-  const archives=(await readdir(join(directory,'backups'))).filter(f=>f.endsWith('.dump'));assert.equal(archives.length,expectedBackups);
-  const archive=join(directory,'backups',archives[0]);
+  const archive=backed.output.match(/Backup complete: (.+)/)?.[1].trim();assert.ok(archive,backed.output);
+  const archives=(await readdir(join(directory,'backups'))).filter(f=>f.endsWith('.dump'));assert.ok(archives.includes(basename(archive)));
   const viaUi=await api('/backup','POST',{});assert.match(viaUi.file,/\.dump$/);
   assert.equal((await api('/operations')).file,viaUi.file);
   const fixture=new pg.Pool({host:'127.0.0.1',port:pgPort,database:cfg.database,user:cfg.user,password:cfg.password});
