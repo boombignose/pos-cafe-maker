@@ -2,6 +2,8 @@
 
 ชุด **shop** ใช้ PostgreSQL จริงและหลายหน้าจอใน LAN ชุด **demo** และ GitHub Pages เก็บข้อมูลจำลองเฉพาะ browser เป็นคนละโหมด ไม่มี Docker/API key/payment gateway
 
+ต้องการติดตั้ง Docker เพิ่ม: อ่าน [คู่มือ Docker Desktop/WSL 2 บน Windows](DOCKER-WINDOWS.md) เป็นทางเลือกสำหรับเตรียมเครื่อง รุ่นนี้ยังไม่มี Dockerfile/Compose สำหรับ POS และ `Start.cmd` ไม่ใช้ Docker
+
 ## ติดตั้งครั้งแรก
 
 1. ใช้เครื่อง Windows 64-bit หนึ่งเครื่องเป็นเครื่องกลาง ติดตั้ง [Node.js 24 LTS](https://nodejs.org/en/download) และ [PostgreSQL 17 หรือ 18 จากหน้าผู้ผลิต](https://www.postgresql.org/download/windows/) รวม command-line tools เครื่องลูกใช้ browser ไม่ต้องติดตั้งฐานข้อมูล ไม่จำเป็นต้องใช้รหัส PostgreSQL ของ installation เดิมกับ POS
