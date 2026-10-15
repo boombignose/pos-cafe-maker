@@ -19,7 +19,7 @@ for directory in ['dist','runtime','scripts/shop','scripts/hardware','hardware',
     for file in (root/directory).rglob('*'):
         if file.is_file() and file.suffix not in ['.kicad_prl','.pyc','.log']:
             entries[str(file.relative_to(root))]=file
-for name in ['Start.cmd','Backup.cmd','Restore.cmd','start.sh','package.json','package-lock.json','LICENSE','LICENSES/CERN-OHL-P-2.0.txt','THIRD_PARTY.md','docs/INSTALL.md','docs/BACKEND.md','docs/BLUEPRINT.md','docs/DESIGNER.md','docs/HARDWARE.md','docs/PRINTING.md','docs/TEST-REPORT.md']:
+for name in ['Start.cmd','Backup.cmd','Restore.cmd','start.sh','package.json','package-lock.json','LICENSE','LICENSES/CERN-OHL-P-2.0.txt','THIRD_PARTY.md','docs/INSTALL.md','docs/DOCKER-WINDOWS.md','docs/BACKEND.md','docs/BLUEPRINT.md','docs/DESIGNER.md','docs/HARDWARE.md','docs/PRINTING.md','docs/TEST-REPORT.md']:
     entries[name]=root/name
 with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as archive:
     for name,file in sorted(entries.items()):
